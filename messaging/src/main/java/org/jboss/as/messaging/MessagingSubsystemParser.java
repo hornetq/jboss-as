@@ -47,7 +47,6 @@ import static org.jboss.as.messaging.CommonAttributes.IN_VM_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.JMS_QUEUE;
 import static org.jboss.as.messaging.CommonAttributes.JMS_TOPIC;
-import static org.jboss.as.messaging.CommonAttributes.LIVE_CONNECTOR_REF;
 import static org.jboss.as.messaging.CommonAttributes.PARAM;
 import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
@@ -249,8 +248,8 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     parseDirectory(reader, CommonAttributes.LARGE_MESSAGES_DIRECTORY, address, list);
                     break;
                 case LIVE_CONNECTOR_REF: {
-                    String string = readStringAttributeElement(reader, CommonAttributes.CONNECTOR_NAME);
-                    LIVE_CONNECTOR_REF.parseAndSetParameter(string, operation, reader);
+                    MessagingLogger.ROOT_LOGGER.deprecatedXMLElement(element.toString());
+                    skipElementText(reader);
                     break;
                 }
                 case PAGING_DIRECTORY:
@@ -296,6 +295,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     if (namespace != Namespace.MESSAGING_1_0) {
                         throw unexpectedEndElement(reader);
                     }
+                    break;
+                case CLUSTERED:
+                    MessagingLogger.ROOT_LOGGER.deprecatedXMLElement(element.toString());
+                    skipElementText(reader);
                     break;
                 default:
                     if (SIMPLE_ROOT_RESOURCE_ELEMENTS.contains(element)) {
@@ -433,7 +436,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     break;
                 }
                 default: {
-                    throw ParseUtils.unexpectedElement(reader);
+                   handleUnknownClusterConnectionAttribute(reader, element, clusterConnectionAdd);
                 }
             }
         }
@@ -445,7 +448,12 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
         updates.add(clusterConnectionAdd);
     }
 
-    private void processBridges(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
+   protected void handleUnknownClusterConnectionAttribute(XMLExtendedStreamReader reader, Element element, ModelNode clusterConnectionAdd)
+         throws XMLStreamException {
+      throw ParseUtils.unexpectedElement(reader);
+   }
+
+   private void processBridges(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
         requireNoAttributes(reader);
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             final Element element = Element.forName(reader.getLocalName());
@@ -1606,7 +1614,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 // end of pooled CF elements
                 // =========================================================
                 default: {
-                    throw ParseUtils.unexpectedElement(reader);
+                   handleUnknownConnectionFactoryAttribute(reader, element, connectionFactory, pooled);
                 }
             }
         }
@@ -1615,6 +1623,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
 
         return connectionFactory;
     }
+
+   protected void handleUnknownConnectionFactoryAttribute(XMLExtendedStreamReader reader, Element element, ModelNode connectionFactory, boolean pooled) throws XMLStreamException {
+      throw ParseUtils.unexpectedElement(reader);
+   }
 
     protected void checkOtherElementIsNotAlreadyDefined(XMLStreamReader reader, Set<Element> seen, Element currentElement, Element otherElement) throws XMLStreamException {
         if (seen.contains(otherElement)) {

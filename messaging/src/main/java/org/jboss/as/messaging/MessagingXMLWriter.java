@@ -655,6 +655,7 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         Common.SCHEDULED_THREAD_POOL_MAX_SIZE.marshallAsElement(factory, writer);
         Common.THREAD_POOL_MAX_SIZE.marshallAsElement(factory, writer);
         Common.GROUP_ID.marshallAsElement(factory, writer);
+        CommonAttributes.CALL_FAILOVER_TIMEOUT.marshallAsElement(factory, writer);
 
         writer.writeEndElement();
     }
