@@ -63,27 +63,25 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
     protected Messaging13SubsystemParser() {
     }
 
-   @Override
-   protected void handleUnknownConnectionFactoryAttribute(XMLExtendedStreamReader reader, Element element, ModelNode connectionFactory, boolean pooled)
-         throws XMLStreamException {
-      switch (element) {
-         case CALL_FAILOVER_TIMEOUT:
-            handleElementText(reader, element, connectionFactory);
-            break;
-         case COMPRESS_LARGE_MESSAGES:
-             handleElementText(reader, element, connectionFactory);
-             break;
-         case USE_AUTO_RECOVERY:
-            if (!pooled) {
-               throw unexpectedElement(reader);
+    @Override
+    protected void handleUnknownConnectionFactoryAttribute(XMLExtendedStreamReader reader, Element element, ModelNode connectionFactory, boolean pooled)
+            throws XMLStreamException {
+        switch (element) {
+            case CALL_FAILOVER_TIMEOUT:
+            case COMPRESS_LARGE_MESSAGES:
+                handleElementText(reader, element, connectionFactory);
+                break;
+            case USE_AUTO_RECOVERY:
+                if (!pooled) {
+                    throw unexpectedElement(reader);
+                }
+                handleElementText(reader, element, connectionFactory);
+                break;
+            default: {
+                super.handleUnknownConnectionFactoryAttribute(reader, element, connectionFactory, pooled);
             }
-            handleElementText(reader, element, connectionFactory);
-            break;
-         default: {
-            super.handleUnknownConnectionFactoryAttribute(reader, element, connectionFactory, pooled);
-         }
-      }
-   }
+        }
+    }
 
    @Override
    protected void handleUnknownClusterConnectionAttribute(XMLExtendedStreamReader reader, Element element, ModelNode clusterConnectionAdd)
@@ -122,7 +120,7 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         }
     }
 
-   private void processJmsBridge(XMLExtendedStreamReader reader, ModelNode subsystemAddress, List<ModelNode> list) throws XMLStreamException {
+    private void processJmsBridge(XMLExtendedStreamReader reader, ModelNode subsystemAddress, List<ModelNode> list) throws XMLStreamException {
         String bridgeName = null;
         String moduleName = null;
 
