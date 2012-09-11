@@ -96,7 +96,21 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
       }
    }
 
-    protected void processHornetQServers(final XMLExtendedStreamReader reader, final ModelNode subsystemAddress, final List<ModelNode> list) throws XMLStreamException {
+   @Override
+   protected void handleUnknownConfigurationAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation) throws XMLStreamException {
+      switch (element) {
+         case CHECK_FOR_LIVE_SERVER:
+         case NODE_GROUP_NAME:
+         case REPLICATION_CLUSTERNAME:
+            handleElementText(reader, element, operation);
+            break;
+         default: {
+            super.handleUnknownConfigurationAttribute(reader, element, operation);
+         }
+      }
+   }
+
+   protected void processHornetQServers(final XMLExtendedStreamReader reader, final ModelNode subsystemAddress, final List<ModelNode> list) throws XMLStreamException {
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             final Namespace schemaVer = Namespace.forUri(reader.getNamespaceURI());
             switch (schemaVer) {

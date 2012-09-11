@@ -17,6 +17,9 @@
             <journal-file-size>102400</journal-file-size>
             <journal-min-files>2</journal-min-files>
             <page-max-concurrent-io>10</page-max-concurrent-io>
+            <check-for-live-server>false</check-for-live-server>
+            <node-group-name>ngname</node-group-name>
+            <replication-clustername>repclustername</replication-clustername>
             <paging-directory path="test" relative-to="test" />
             <bindings-directory path="test" relative-to="test" />
             <journal-directory path="test" relative-to="test" />
@@ -356,5 +359,4 @@
         </hornetq-server>
 
         <hornetq-server name="empty"/>
-
     </subsystem>

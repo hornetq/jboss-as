@@ -29,14 +29,17 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUB
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
 import static org.jboss.as.messaging.CommonAttributes.CALL_FAILOVER_TIMEOUT;
+import static org.jboss.as.messaging.CommonAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTERED;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_CONNECTION;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.HA;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
+import static org.jboss.as.messaging.CommonAttributes.NODE_GROUP_NAME;
 import static org.jboss.as.messaging.CommonAttributes.PARAM;
 import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_CLUSTERNAME;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_0;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_1;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_2;
@@ -63,8 +66,6 @@ import org.jboss.as.controller.transform.AbstractSubsystemTransformer;
 import org.jboss.as.controller.transform.RejectExpressionValuesTransformer;
 import org.jboss.as.controller.transform.TransformationContext;
 import org.jboss.as.controller.transform.TransformersSubRegistration;
-import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common;
-import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -249,7 +250,9 @@ public class MessagingExtension implements Extension {
                         if (!oldModel.get(HORNETQ_SERVER, server.getName()).hasDefined(CLUSTERED.getName())) {
                             oldModel.get(HORNETQ_SERVER, server.getName()).get(CLUSTERED.getName()).set(false);
                         }
-
+                        oldModel.get(HORNETQ_SERVER, server.getName()).remove(CHECK_FOR_LIVE_SERVER.getName());
+                        oldModel.get(HORNETQ_SERVER, server.getName()).remove(NODE_GROUP_NAME.getName());
+                        oldModel.get(HORNETQ_SERVER, server.getName()).remove(REPLICATION_CLUSTERNAME.getName());
                         if (server.getValue().hasDefined(CLUSTER_CONNECTION)) {
                             for (Property clusterConnection : server.getValue().get(CLUSTER_CONNECTION).asPropertyList()) {
                                 oldModel.get(HORNETQ_SERVER, server.getName(), CLUSTER_CONNECTION, clusterConnection.getName()).remove(CALL_FAILOVER_TIMEOUT.getName());
@@ -280,7 +283,9 @@ public class MessagingExtension implements Extension {
         });
 
         TransformersSubRegistration server = transformers.registerSubResource(PathElement.pathElement(HORNETQ_SERVER));
-        server.registerOperationTransformer(ADD, new OperationTransformers.InsertDefaultValuesOperationTransformer(ID_CACHE_SIZE, CLUSTERED));
+        server.registerOperationTransformer(ADD,new OperationTransformers.MultipleOperationalTransformer(
+              new OperationTransformers.InsertDefaultValuesOperationTransformer(ID_CACHE_SIZE, CLUSTERED),
+              new OperationTransformers.RemoveAttributesOperationTransformer(CHECK_FOR_LIVE_SERVER, NODE_GROUP_NAME, REPLICATION_CLUSTERNAME)));
 
         RejectExpressionValuesTransformer rejectTransportParamExpressionTransformer = new RejectExpressionValuesTransformer(VALUE);
         final String[] transports = { CommonAttributes.ACCEPTOR, CommonAttributes.REMOTE_ACCEPTOR, CommonAttributes.IN_VM_ACCEPTOR,
