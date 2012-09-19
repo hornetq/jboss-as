@@ -209,15 +209,15 @@ public interface CommonAttributes {
 
     SimpleAttributeDefinition GROUP_ADDRESS = create("group-address", ModelType.STRING)
             .setDefaultValue(null)
-            .setAllowNull(false)
-            .setAlternatives("socket-binding")
+            .setAllowNull(true)
+            .setAlternatives("socket-binding", "jgroups-ref")
             .setFlags(RESTART_ALL_SERVICES)
             .build();
 
     SimpleAttributeDefinition GROUP_PORT = create("group-port", INT)
             .setDefaultValue(null)
-            .setAllowNull(false)
-            .setAlternatives("socket-binding")
+            .setAllowNull(true)
+            .setAlternatives("socket-binding", "jgroups-ref")
             .setFlags(RESTART_ALL_SERVICES)
             .build();
 
@@ -288,6 +288,20 @@ public interface CommonAttributes {
 
     SimpleAttributeDefinition LOCAL_BIND_PORT = create("local-bind-port", INT)
             .setDefaultValue(new ModelNode().set(-1))
+            .setAllowNull(true)
+            .setAlternatives("socket-binding")
+            .setFlags(RESTART_ALL_SERVICES)
+            .build();
+
+    SimpleAttributeDefinition JGROUPS_REF = create("jgroups-ref", ModelType.STRING)
+            .setDefaultValue(null)
+            .setAllowNull(true)
+            .setAlternatives("socket-binding")
+            .setFlags(RESTART_ALL_SERVICES)
+            .build();
+
+    SimpleAttributeDefinition JGROUPS_CHANNEL = create("jgroups-channel", ModelType.STRING)
+            .setDefaultValue(null)
             .setAllowNull(true)
             .setAlternatives("socket-binding")
             .setFlags(RESTART_ALL_SERVICES)
@@ -499,7 +513,9 @@ public interface CommonAttributes {
             .setAlternatives(GROUP_ADDRESS.getName(),
                             GROUP_PORT.getName(),
                             LOCAL_BIND_ADDRESS.getName(),
-                            LOCAL_BIND_PORT.getName())
+                            LOCAL_BIND_PORT.getName(),
+                            JGROUPS_REF.getName(),
+                            JGROUPS_CHANNEL.getName())
             .setRestartAllServices()
             .build();
 
