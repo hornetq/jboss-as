@@ -30,9 +30,12 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hornetq.core.config.BroadcastGroupConfiguration;
 import org.hornetq.core.config.Configuration;
+import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -92,8 +95,10 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
 
                 final ModelNode localAddrNode = CommonAttributes.LOCAL_BIND_ADDRESS.resolveModelAttribute(context, model);
                 final String localAddress = localAddrNode.isDefined() ? localAddrNode.asString() : null;
-                final String groupAddress = CommonAttributes.GROUP_ADDRESS.resolveModelAttribute(context, model).asString();
-                final int groupPort = CommonAttributes.GROUP_PORT.resolveModelAttribute(context, model).asInt();
+                final ModelNode groupAddrNode = CommonAttributes.GROUP_ADDRESS.resolveModelAttribute(context, model);
+                final String groupAddress = groupAddrNode.isDefined() ? groupAddrNode.asString() : null;
+                final ModelNode groupPortNode = CommonAttributes.GROUP_PORT.resolveModelAttribute(context, model);
+                final int groupPort = groupPortNode.isDefined() ? groupPortNode.asInt() : -1;
                 final int localBindPort = CommonAttributes.LOCAL_BIND_PORT.resolveModelAttribute(context, model).asInt();
 
                 try {
@@ -130,6 +135,8 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
     static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
 
         final long broadcastPeriod = BroadcastGroupDefinition.BROADCAST_PERIOD.resolveModelAttribute(context, model).asLong();
+        final String jgroupsRef = CommonAttributes.JGROUPS_REF.resolveModelAttribute(context, model).asString();
+        final String jgroupsChannel = CommonAttributes.JGROUPS_CHANNEL.resolveModelAttribute(context, model).asString();
         final List<String> connectorRefs = new ArrayList<String>();
         if (model.hasDefined(CommonAttributes.CONNECTORS)) {
             for (ModelNode ref : model.get(CommonAttributes.CONNECTORS).asList()) {
@@ -137,10 +144,12 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
             }
         }
         // Requires runtime service
-        return new BroadcastGroupConfiguration(name, null, 0, null, 0, broadcastPeriod, connectorRefs);
+        BroadcastGroupConfiguration newConfig = new BroadcastGroupConfiguration(name, null, 0, null, 0, broadcastPeriod, connectorRefs, jgroupsRef);
+        newConfig.setJgroupsChannel(jgroupsChannel);
+        return newConfig;
     }
 
-    static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final SocketBinding socketBinding) {
+    static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final SocketBinding socketBinding, final ChannelFactory factory) throws Exception {
 
         final String localAddress = socketBinding.getAddress().getHostAddress();
         final String groupAddress = socketBinding.getMulticastAddress().getHostAddress();
@@ -149,7 +158,12 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
 
-        return new BroadcastGroupConfiguration(name, localAddress, localPort, groupAddress, groupPort, broadcastPeriod, connectorRefs);
+        BroadcastGroupConfiguration newConfig = new BroadcastGroupConfiguration(name, localAddress, localPort, groupAddress, groupPort, broadcastPeriod, connectorRefs);
+        if (factory != null) {
+            newConfig.setChannelInstance(factory.createChannel("hornetq-broadcast"));
+            newConfig.setJgroupsChannel(config.getJgroupsChannel());
+        }
+        return newConfig;
     }
 
 }
