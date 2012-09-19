@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.core.config.Configuration;
+import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -92,8 +93,10 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
 
                 final ModelNode localAddrNode = CommonAttributes.LOCAL_BIND_ADDRESS.resolveModelAttribute(context, model);
                 final String localAddress = localAddrNode.isDefined() ? localAddrNode.asString() : null;
-                final String groupAddress = CommonAttributes.GROUP_ADDRESS.resolveModelAttribute(context, model).asString();
-                final int groupPort = CommonAttributes.GROUP_PORT.resolveModelAttribute(context, model).asInt();
+                final ModelNode groupAddrNode = CommonAttributes.GROUP_ADDRESS.resolveModelAttribute(context, model);
+                final String groupAddress = groupAddrNode.isDefined() ? groupAddrNode.asString() : null;
+                final ModelNode groupPortNode = CommonAttributes.GROUP_PORT.resolveModelAttribute(context, model);
+                final int groupPort = groupPortNode.isDefined() ? groupPortNode.asInt() : -1;
 
                 try {
 
@@ -134,11 +137,15 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
 
         final long refreshTimeout = DiscoveryGroupDefinition.REFRESH_TIMEOUT.resolveModelAttribute(context, model).asLong();
         final long initialWaitTimeout = DiscoveryGroupDefinition.INITIAL_WAIT_TIMEOUT.resolveModelAttribute(context, model).asLong();
+        final String jgroupsRef = CommonAttributes.JGROUPS_REF.resolveModelAttribute(context, model).asString();
+        final String jgroupsChannel = CommonAttributes.JGROUPS_CHANNEL.resolveModelAttribute(context, model).asString();
         // Requires runtime service
-        return new DiscoveryGroupConfiguration(name, null, null, 0, refreshTimeout, initialWaitTimeout);
+        DiscoveryGroupConfiguration newConfig = new DiscoveryGroupConfiguration(name, null, -1, null, 0, refreshTimeout, initialWaitTimeout, jgroupsRef);
+        newConfig.setJgroupsChannelName(jgroupsChannel);
+        return newConfig;
     }
 
-    static DiscoveryGroupConfiguration createDiscoveryGroupConfiguration(final String name, final DiscoveryGroupConfiguration config, final SocketBinding socketBinding) {
+    static DiscoveryGroupConfiguration createDiscoveryGroupConfiguration(final String name, final DiscoveryGroupConfiguration config, final SocketBinding socketBinding, final ChannelFactory factory) throws Exception {
 
         final String localAddress = socketBinding.getAddress().getHostAddress();
         final String groupAddress = socketBinding.getMulticastAddress().getHostAddress();
@@ -146,7 +153,12 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
         final long refreshTimeout = config.getRefreshTimeout();
         final long initialWaitTimeout = config.getDiscoveryInitialWaitTimeout();
 
-        return new DiscoveryGroupConfiguration(name, localAddress, groupAddress, groupPort, refreshTimeout, initialWaitTimeout);
+        DiscoveryGroupConfiguration newConfig = new DiscoveryGroupConfiguration(name, localAddress, -1, groupAddress, groupPort, refreshTimeout, initialWaitTimeout);
+        if (factory != null) {
+            newConfig.setChannelInstance(factory.createChannel("hornetq-discovery"));
+            newConfig.setJgroupsChannelName(config.getJgroupsChannelName());
+        }
+        return newConfig;
     }
 
 }
