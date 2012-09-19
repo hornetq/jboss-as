@@ -21,6 +21,7 @@ import org.hornetq.core.journal.impl.AIOSequentialFileFactory;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.JournalType;
 import org.hornetq.core.server.impl.HornetQServerImpl;
+import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.network.OutboundSocketBinding;
 import org.jboss.as.network.SocketBinding;
@@ -56,6 +57,7 @@ class HornetQService implements Service<HornetQServer> {
 
     private HornetQServer server;
     private Map<String, SocketBinding> socketBindings = new HashMap<String, SocketBinding>();
+    private Map<String, ChannelFactory> jgroupFactories = new HashMap<String, ChannelFactory>();
     private Map<String, OutboundSocketBinding> outboundSocketBindings = new HashMap<String, OutboundSocketBinding>();
     private Map<String, SocketBinding> groupBindings = new HashMap<String, SocketBinding>();
     private final InjectedValue<PathManager> pathManager = new InjectedValue<PathManager>();
@@ -73,6 +75,10 @@ class HornetQService implements Service<HornetQServer> {
 
     Injector<SocketBinding> getSocketBindingInjector(String name) {
         return new MapInjector<String, SocketBinding>(socketBindings, name);
+    }
+
+    Injector<ChannelFactory> getJGroupsInjector(String name) {
+        return new MapInjector<String, ChannelFactory>(jgroupFactories, name);
     }
 
     Injector<OutboundSocketBinding> getOutboundSocketBindingInjector(String name) {
@@ -175,7 +181,7 @@ class HornetQService implements Service<HornetQServer> {
                     if (binding == null) {
                         throw MESSAGES.failedToFindBroadcastSocketBinding(name);
                     }
-                    newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, binding));
+                    newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, binding, jgroupFactories.get(config.getJgroupsRef())));
                 }
                 configuration.getBroadcastGroupConfigurations().clear();
                 configuration.getBroadcastGroupConfigurations().addAll(newConfigs);
@@ -188,7 +194,7 @@ class HornetQService implements Service<HornetQServer> {
                     if (binding == null) {
                         throw MESSAGES.failedToFindDiscoverySocketBinding(name);
                     }
-                    final DiscoveryGroupConfiguration config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), binding);
+                    final DiscoveryGroupConfiguration config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), binding, jgroupFactories.get(entry.getValue().getJgroupsRef()));
                     configuration.getDiscoveryGroupConfigurations().put(name, config);
                 }
             }
