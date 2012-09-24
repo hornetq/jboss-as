@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.api.core.TransportConfiguration;
+import org.hornetq.api.core.UDPDiscoveryGroupConfiguration;
 import org.hornetq.core.server.HornetQServer;
 import org.jboss.as.connector.services.mdr.AS7MetadataRepository;
 import org.jboss.as.connector.services.resourceadapters.ResourceAdapterActivatorService;
@@ -228,7 +229,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
             }
 
             if(discoveryGroupName != null) {
-                DiscoveryGroupConfiguration discoveryGroupConfiguration = hornetQService.getValue().getConfiguration().getDiscoveryGroupConfigurations().get(discoveryGroupName);
+                UDPDiscoveryGroupConfiguration discoveryGroupConfiguration = (UDPDiscoveryGroupConfiguration) hornetQService.getValue().getConfiguration().getDiscoveryGroupConfigurations().get(discoveryGroupName);
                 properties.add(simpleProperty15(GROUP_ADDRESS, STRING_TYPE, discoveryGroupConfiguration.getGroupAddress()));
                 properties.add(simpleProperty15(DISCOVERY_INITIAL_WAIT_TIMEOUT, LONG_TYPE, "" + discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout()));
                 properties.add(simpleProperty15(GROUP_PORT, INTEGER_TYPE, "" + discoveryGroupConfiguration.getGroupPort()));

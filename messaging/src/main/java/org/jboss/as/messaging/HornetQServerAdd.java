@@ -96,11 +96,13 @@ import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.core.config.BroadcastGroupConfiguration;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.JGroupsBroadcastGroupConfigurationWithChannel;
 import org.hornetq.core.config.impl.ConfigurationImpl;
 import org.hornetq.core.security.Role;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.JournalType;
 import org.hornetq.core.settings.impl.AddressSettings;
+import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -271,6 +273,10 @@ class HornetQServerAdd implements OperationStepHandler {
                         final String name = config.getName();
                         final ServiceName groupBinding = GroupBindingService.getBroadcastBaseServiceName(hqServiceName).append(name);
                         serviceBuilder.addDependency(groupBinding, SocketBinding.class, hqService.getGroupBindingInjector("broadcast" + name));
+                        if (config instanceof JGroupsBroadcastGroupConfigurationWithChannel) {
+                            String jgroupsRef = ((JGroupsBroadcastGroupConfigurationWithChannel)config).getJgroupsRef();
+                            serviceBuilder.addDependency(DependencyType.OPTIONAL, ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsRef), ChannelFactory.class, hqService.getJGroupsInjector(jgroupsRef));
+                        }
                     }
                 }
                 if(discoveryGroupConfigurations != null) {
