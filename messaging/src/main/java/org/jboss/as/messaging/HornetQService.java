@@ -75,6 +75,8 @@ class HornetQService implements Service<HornetQServer> {
     /** */
     private static final String HOST = "host";
     private static final String PORT = "port";
+    private static final String LOCAL_ADDRESS = "local-address";
+    private static final String LOCAL_PORT = "local-port";
     private static final String LOGGING_FACTORY = "org.jboss.as.messaging.HornetQLoggerFactory";
 
     /**
@@ -170,6 +172,8 @@ class HornetQService implements Service<HornetQServer> {
                         String name = socketRef.toString();
                         String host;
                         int port;
+                        String localAddress = null;
+                        int localPort = 0;
                         OutboundSocketBinding binding = outboundSocketBindings.get(name);
                         if (binding == null) {
                             final SocketBinding socketBinding = socketBindings.get(name);
@@ -186,6 +190,16 @@ class HornetQService implements Service<HornetQServer> {
                             }
                         } else {
                             port = binding.getDestinationPort();
+                            if(binding.getSourcePort() != null) {
+                               localPort = binding.getSourcePort();
+                            }
+                            if(binding.getSourceAddress() != null) {
+                                if (binding.getSourceAddress().isLoopbackAddress()) {
+                                   localAddress = binding.getSourceAddress().getHostName();
+                                } else {
+                                   localAddress = binding.getSourceAddress().getHostAddress();
+                                }
+                            }
                             if (binding.getDestinationAddress().isLoopbackAddress()) {
                                 host = binding.getDestinationAddress().getHostName();
                             } else {
@@ -194,6 +208,8 @@ class HornetQService implements Service<HornetQServer> {
                         }
                         tc.getParams().put(HOST, host);
                         tc.getParams().put(PORT, String.valueOf(port));
+                        tc.getParams().put(LOCAL_ADDRESS, localAddress);
+                        tc.getParams().put(LOCAL_PORT, String.valueOf(localPort));
                     }
                 }
             }
