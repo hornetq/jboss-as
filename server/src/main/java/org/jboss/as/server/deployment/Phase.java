@@ -335,6 +335,7 @@ public enum Phase {
     public static final int DEPENDENCIES_JPA                            = 0x1000;
     public static final int DEPENDENCIES_JDK                            = 0x1200;
     public static final int DEPENDENCIES_JACORB                         = 0x1300;
+    public static final int DEPENDENCIES_JMS                            = 0x1400;
     public static final int DEPENDENCIES_CMP                            = 0x1500;
     public static final int DEPENDENCIES_JAXR                           = 0x1600;
     public static final int DEPENDENCIES_DRIVERS                        = 0x1700;

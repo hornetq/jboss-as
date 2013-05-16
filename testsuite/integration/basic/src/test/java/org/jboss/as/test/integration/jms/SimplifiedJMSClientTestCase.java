@@ -1,0 +1,95 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2013, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+package org.jboss.as.test.integration.jms;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.jboss.as.test.shared.TimeoutUtil.adjust;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.util.UUID;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.jms.JMSConnectionFactory;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
+import javax.jms.JMSPasswordCredential;
+import javax.jms.JMSProducer;
+import javax.jms.JMSSessionMode;
+import javax.jms.Queue;
+
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.as.arquillian.api.ServerSetup;
+import org.jboss.as.test.integration.common.jms.JMSOperations;
+import org.jboss.as.test.jms.auxiliary.CreateQueueSetupTask;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+/**
+ * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
+ */
+@RunWith(Arquillian.class)
+@ServerSetup(CreateQueueSetupTask.class)
+public class SimplifiedJMSClientTestCase {
+
+    @Inject
+    @JMSConnectionFactory("/ConnectionFactory")
+    @JMSPasswordCredential(userName="guest",password="guest")
+    @JMSSessionMode(JMSContext.AUTO_ACKNOWLEDGE)
+    private JMSContext context;
+
+    @Resource(mappedName = "/queue/myAwesomeQueue")
+    private Queue queue;
+
+    @Deployment
+    public static JavaArchive createTestArchive() {
+        return ShrinkWrap.create(JavaArchive.class, "test.jar")
+                .addPackage(JMSOperations.class.getPackage())
+                .addClass(CreateQueueSetupTask.class)
+                .addAsManifestResource(EmptyAsset.INSTANCE,
+                        "beans.xml")
+                .addAsManifestResource(new StringAsset("Dependencies: org.jboss.as.controller-client,org.jboss.dmr,org.jboss.as.cli\n"),
+                        "MANIFEST.MF");
+    }
+
+    @Test
+    public void testSendAndReceiveWithContext() {
+        System.out.println("context = " + context);
+
+        String text = UUID.randomUUID().toString();
+
+        JMSProducer producer = context.createProducer();
+        producer.send(queue, text);
+
+        JMSConsumer consumer = context.createConsumer(queue);
+        String t = consumer.receiveBody(String.class, adjust(500));
+        assertNotNull(t);
+        assertThat(t, is(text));
+    }
+}
