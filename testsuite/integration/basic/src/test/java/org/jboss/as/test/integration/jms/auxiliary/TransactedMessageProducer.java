@@ -20,27 +20,45 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.as.messaging.deployment;
+package org.jboss.as.test.integration.jms.auxiliary;
 
-import org.jboss.as.server.deployment.DeploymentPhaseContext;
-import org.jboss.as.server.deployment.DeploymentUnit;
-import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
-import org.jboss.as.weld.deployment.WeldPortableExtensions;
+import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
+
+import javax.annotation.Resource;
+import javax.ejb.SessionContext;
+import javax.ejb.Stateful;
+import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.jms.Destination;
+import javax.jms.JMSContext;
+import javax.jms.JMSProducer;
+
+import org.jboss.logging.Logger;
 
 /**
- * Processor that deploys a CDI portable extension to provide injection of JMSContext resource.
- *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
-public class CDIDeploymentProcessor implements DeploymentUnitProcessor {
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
-        final DeploymentUnit unit = phaseContext.getDeploymentUnit();
+@Stateful
+@RequestScoped
+public class TransactedMessageProducer {
+    private static final Logger logger = Logger.getLogger(TransactedMessageProducer.class);
 
-        WeldPortableExtensions extensions = WeldPortableExtensions.getPortableExtensions(unit);
-        extensions.registerExtensionInstance(new JMSCDIExtension(), unit);
-    }
+    @Resource(name = "java:/queue/myAwesomeQueue")
+    private Destination destination;
 
-    public void undeploy(DeploymentUnit context) {
+    @Inject
+    private JMSContext context;
+
+    @Resource
+    private SessionContext sessionContext;
+
+    @TransactionAttribute(value = REQUIRES_NEW)
+    public void sendToDestination(String text, boolean rollback) {
+        JMSProducer producer = context.createProducer();
+        producer.send(destination, text);
+        if (rollback) {
+            sessionContext.setRollbackOnly();
+        }
     }
 }

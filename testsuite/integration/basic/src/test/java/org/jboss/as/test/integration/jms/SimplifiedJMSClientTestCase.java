@@ -23,13 +23,16 @@
 package org.jboss.as.test.integration.jms;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.jboss.as.test.shared.TimeoutUtil.adjust;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.jms.JMSConnectionFactory;
 import javax.jms.JMSConsumer;
@@ -38,12 +41,15 @@ import javax.jms.JMSPasswordCredential;
 import javax.jms.JMSProducer;
 import javax.jms.JMSSessionMode;
 import javax.jms.Queue;
+import javax.transaction.TransactionScoped;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.as.arquillian.api.ServerSetup;
 import org.jboss.as.test.integration.common.jms.JMSOperations;
+import org.jboss.as.test.integration.jms.auxiliary.TransactedMessageProducer;
 import org.jboss.as.test.jms.auxiliary.CreateQueueSetupTask;
+import org.jboss.as.test.shared.TimeoutUtil;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
@@ -67,11 +73,16 @@ public class SimplifiedJMSClientTestCase {
     @Resource(mappedName = "/queue/myAwesomeQueue")
     private Queue queue;
 
+    @EJB
+    private TransactedMessageProducer producerBean;
+
     @Deployment
     public static JavaArchive createTestArchive() {
-        return ShrinkWrap.create(JavaArchive.class, "test.jar")
+        return ShrinkWrap.create(JavaArchive.class, "SimplifiedJMSClientTestCase.jar")
                 .addPackage(JMSOperations.class.getPackage())
                 .addClass(CreateQueueSetupTask.class)
+                .addClass(TransactedMessageProducer.class)
+                .addClass(TimeoutUtil.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE,
                         "beans.xml")
                 .addAsManifestResource(new StringAsset("Dependencies: org.jboss.as.controller-client,org.jboss.dmr,org.jboss.as.cli\n"),
@@ -80,8 +91,6 @@ public class SimplifiedJMSClientTestCase {
 
     @Test
     public void testSendAndReceiveWithContext() {
-        System.out.println("context = " + context);
-
         String text = UUID.randomUUID().toString();
 
         JMSProducer producer = context.createProducer();
@@ -91,5 +100,29 @@ public class SimplifiedJMSClientTestCase {
         String t = consumer.receiveBody(String.class, adjust(500));
         assertNotNull(t);
         assertThat(t, is(text));
+    }
+
+    @Test
+    @TransactionScoped
+    public void testSendWith_REQUIRES_NEW_transaction() {
+        String text = UUID.randomUUID().toString();
+
+        producerBean.sendToDestination(text, false);
+
+        JMSConsumer consumer = context.createConsumer(queue);
+        String t = consumer.receiveBody(String.class, adjust(500));
+        assertNotNull(t);
+        assertThat(t, is(text));
+    }
+
+    @Test
+    public void testSendWith_REQUIRES_NEW_transactionAndRollback() {
+        String text = UUID.randomUUID().toString();
+
+        producerBean.sendToDestination(text, true);
+
+        JMSConsumer consumer = context.createConsumer(queue);
+        String t = consumer.receiveBody(String.class, adjust(500));
+        assertThat(t, is(nullValue()));
     }
 }

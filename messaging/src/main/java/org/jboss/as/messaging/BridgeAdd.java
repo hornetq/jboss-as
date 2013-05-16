@@ -29,6 +29,7 @@ import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.management.HornetQServerControl;
 import org.hornetq.core.config.BridgeConfiguration;
 import org.hornetq.core.config.Configuration;
@@ -129,10 +130,14 @@ public class BridgeAdd extends AbstractAddStepHandler {
         final String user = BridgeDefinition.USER.resolveModelAttribute(context, model).asString();
         final String password = BridgeDefinition.PASSWORD.resolveModelAttribute(context, model).asString();
 
+        // FIXME make a new attribute for this
+        int reconnectAttemptsOnSameNode = HornetQDefaultConfiguration.getDefaultBridgeConnectSameNode();
+
         if (discoveryGroupName != null) {
             return new BridgeConfiguration(name, queueName, forwardingAddress, filterString, transformerClassName,
                               minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
                               retryInterval, maxRetryInterval, retryIntervalMultiplier, reconnectAttempts,
+                              reconnectAttemptsOnSameNode,
                               useDuplicateDetection, confirmationWindowSize,
                               discoveryGroupName,
                               ha,
@@ -141,6 +146,7 @@ public class BridgeAdd extends AbstractAddStepHandler {
             return new BridgeConfiguration(name, queueName, forwardingAddress, filterString, transformerClassName,
                               minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
                               retryInterval, maxRetryInterval, retryIntervalMultiplier, reconnectAttempts,
+                              reconnectAttemptsOnSameNode,
                               useDuplicateDetection, confirmationWindowSize,
                               staticConnectors,
                               ha,
