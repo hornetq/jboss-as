@@ -132,7 +132,7 @@ public class BridgeAdd extends AbstractAddStepHandler {
         if (discoveryGroupName != null) {
             return new BridgeConfiguration(name, queueName, forwardingAddress, filterString, transformerClassName,
                               minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
-                              retryInterval, maxRetryInterval, retryIntervalMultiplier, reconnectAttempts,
+                              retryInterval, maxRetryInterval, retryIntervalMultiplier, reconnectAttempts,10,
                               useDuplicateDetection, confirmationWindowSize,
                               discoveryGroupName,
                               ha,
@@ -140,7 +140,7 @@ public class BridgeAdd extends AbstractAddStepHandler {
         } else {
             return new BridgeConfiguration(name, queueName, forwardingAddress, filterString, transformerClassName,
                               minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
-                              retryInterval, maxRetryInterval, retryIntervalMultiplier, reconnectAttempts,
+                              retryInterval, maxRetryInterval, retryIntervalMultiplier, reconnectAttempts,10,
                               useDuplicateDetection, confirmationWindowSize,
                               staticConnectors,
                               ha,
