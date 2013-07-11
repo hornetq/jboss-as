@@ -792,6 +792,21 @@
                 </dependency>
 
                 <dependency>
+                    <groupId>org.apache.qpid</groupId>
+                    <artifactId>proton-api</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.qpid</groupId>
+                    <artifactId>proton-jms</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.qpid</groupId>
+                    <artifactId>proton-j-impl</artifactId>
+                </dependency>
+
+                <dependency>
                     <groupId>org.infinispan</groupId>
                     <artifactId>infinispan-cachestore-jdbc</artifactId>
                 </dependency>
@@ -2132,6 +2147,9 @@
                                         <exclude>com.sun.xsom:xsom</exclude>
                                         <exclude>gnu.getopt:java-getopt</exclude>
                                         <exclude>io.netty:netty</exclude>
+                                        <exclude>org.apache.qpid.proton-api</exclude>
+                                        <exclude>org.apache.qpid.proton-jms</exclude>
+                                        <exclude>org.apache.qpid.proton</exclude>
                                         <exclude>javax.faces:jsf-impl</exclude>
                                         <exclude>jaxen:jaxen</exclude>
                                         <exclude>jboss.jaxbintros:jboss-jaxb-intros</exclude>

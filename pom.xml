@@ -150,6 +150,7 @@
         <version.org.hibernate.validator>5.0.1.Final</version.org.hibernate.validator>
         <version.org.hibernate.javax.persistence.hibernate-jpa-2.1-api>1.0.0.Draft-16</version.org.hibernate.javax.persistence.hibernate-jpa-2.1-api>
         <version.org.hornetq>2.4-SNAPSHOT</version.org.hornetq>
+        <version.org.apache.qpid.proton>0.4</version.org.apache.qpid.proton>
         <version.org.infinispan>5.3.0.Final</version.org.infinispan>
         <version.org.jacorb>2.3.2.jbossorg-4</version.org.jacorb>
         <version.org.javassist>3.18.0-GA</version.org.javassist>
@@ -3605,6 +3606,30 @@
                 <groupId>org.hornetq</groupId>
                 <artifactId>hornetq-ra</artifactId>
                 <version>${version.org.hornetq}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.qpid</groupId>
+                <artifactId>proton-api</artifactId>
+                <version>${version.org.apache.qpid.proton}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.qpid</groupId>
+                <artifactId>proton-jms</artifactId>
+                <version>${version.org.apache.qpid.proton}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.qpid</groupId>
+                <artifactId>proton-j-impl</artifactId>
+                <version>${version.org.apache.qpid.proton}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
