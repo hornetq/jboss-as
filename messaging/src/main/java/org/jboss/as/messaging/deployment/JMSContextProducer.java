@@ -57,8 +57,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
 import org.jboss.as.messaging.jms.TransactionManagerLocator;
 
@@ -109,31 +111,7 @@ public class JMSContextProducer {
     public void closeJMSContext(@Disposes JMSContext context) {
         if (context instanceof JMSContextWrapper) {
             // close on the delegate context, the wrapper throwing an exception in its close() method.
-            JMSContext delegate = ((JMSContextWrapper) context).getDelegate();
-            delegate.close();
-        }
-    }
-
-    private static JMSContext create(JMSInfo info, Transaction tx) throws Exception {
-        Context ctx = null;
-        try {
-            ctx = new InitialContext();
-            ConnectionFactory cf = (ConnectionFactory) ctx.lookup(info.connectionFactoryLookup);
-            // this call will fail until HornetQ implements JMS 2.0
-            if (tx != null) {
-                XAJMSContext xaContext = ((XAConnectionFactory) cf).createXAContext(info.userName, info.password);
-                tx.enlistResource(xaContext.getXAResource());
-                return xaContext.getContext();
-            } else {
-                return cf.createContext(info.userName, info.password, info.ackMode);
-            }
-        } finally {
-            if (ctx != null) {
-                try {
-                    ctx.close();
-                } catch (NamingException e) {
-                }
-            }
+            ((JMSContextWrapper)context).internalClose();
         }
     }
 
@@ -183,28 +161,66 @@ public class JMSContextProducer {
 
         private final JMSInfo info;
         private JMSContext delegate;
+        private XAResource xares;
 
         JMSContextWrapper(JMSInfo info) {
             this.info = info;
         }
 
-        private synchronized JMSContext getDelegate() {
-            System.out.println("JMSContextProducer$JMSContextWrapper.getDelegate");
+        private JMSContext create(JMSInfo info, Transaction tx) throws Exception {
+            Context ctx = null;
             try {
-                TransactionManager transactionManager = TransactionManagerLocator.getTransactionManager();
-                final Transaction transaction = transactionManager == null ? null : transactionManager.getTransaction();
+                ctx = new InitialContext();
+                ConnectionFactory cf = (ConnectionFactory) ctx.lookup(info.connectionFactoryLookup);
+                if (tx != null) {
+                    XAJMSContext xaContext = ((XAConnectionFactory) cf).createXAContext(info.userName, info.password);
+                    xares = xaContext.getXAResource();
+                    tx.enlistResource(xares);
+                    return xaContext.getContext();
+                } else {
+                    return cf.createContext(info.userName, info.password, info.ackMode);
+                }
+            } finally {
+                if (ctx != null) {
+                    try {
+                        ctx.close();
+                    } catch (NamingException e) {
+                    }
+                }
+            }
+        }
+
+        private Transaction getCurrentTransaction() {
+            TransactionManager transactionManager = TransactionManagerLocator.getTransactionManager();
+            try {
+                return (transactionManager == null) ? null : transactionManager.getTransaction();
+            } catch (SystemException e) {
+                return null;
+            }
+
+        }
+        private void internalClose() {
+            if (delegate != null) {
+                if (xares == null) {
+                    delegate.close();
+                    delegate = null;
+                }
+            }
+        }
+
+        private synchronized JMSContext getDelegate() {
+            try {
+                final Transaction transaction = getCurrentTransaction();
                 if (delegate == null) {
                     delegate = create(info, transaction);
                     if (transaction != null) {
                         transaction.registerSynchronization(new Synchronization() {
                             @Override
                             public void beforeCompletion() {
-                                System.out.println("JMSContextProducer$JMSContextWrapper.beforeCompletion");
                             }
 
                             @Override
                             public synchronized void afterCompletion(int status) {
-                                System.out.println("JMSContextProducer$JMSContextWrapper.afterCompletion");
                                 delegate.close();
                                 delegate = null;
                             }
@@ -225,7 +241,6 @@ public class JMSContextProducer {
 
         @Override
         public JMSProducer createProducer() {
-            System.out.println("JMSContextProducer$JMSContextWrapper.createProducer");
             return getDelegate().createProducer();
         }
 

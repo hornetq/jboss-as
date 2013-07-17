@@ -23,6 +23,7 @@
 package org.jboss.as.test.integration.jms;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.jboss.as.test.shared.TimeoutUtil.adjust;
 import static org.junit.Assert.assertNotNull;
@@ -34,6 +35,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSConnectionFactory;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
@@ -41,7 +43,7 @@ import javax.jms.JMSPasswordCredential;
 import javax.jms.JMSProducer;
 import javax.jms.JMSSessionMode;
 import javax.jms.Queue;
-import javax.transaction.TransactionScoped;
+import javax.jms.TemporaryQueue;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -54,6 +56,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,13 +67,18 @@ import org.junit.runner.RunWith;
 @ServerSetup(CreateQueueSetupTask.class)
 public class SimplifiedJMSClientTestCase {
 
+    public static final String QUEUE_NAME = "/queue/myAwesomeQueue";
+
     @Inject
     @JMSConnectionFactory("/ConnectionFactory")
     @JMSPasswordCredential(userName="guest",password="guest")
     @JMSSessionMode(JMSContext.AUTO_ACKNOWLEDGE)
     private JMSContext context;
 
-    @Resource(mappedName = "/queue/myAwesomeQueue")
+    @Resource(mappedName = "/ConnectionFactory")
+    private ConnectionFactory factory;
+
+    @Resource(mappedName = QUEUE_NAME)
     private Queue queue;
 
     @EJB
@@ -81,8 +89,8 @@ public class SimplifiedJMSClientTestCase {
         return ShrinkWrap.create(JavaArchive.class, "SimplifiedJMSClientTestCase.jar")
                 .addPackage(JMSOperations.class.getPackage())
                 .addClass(CreateQueueSetupTask.class)
-                .addClass(TransactedMessageProducer.class)
                 .addClass(TimeoutUtil.class)
+                .addPackage(TransactedMessageProducer.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE,
                         "beans.xml")
                 .addAsManifestResource(new StringAsset("Dependencies: org.jboss.as.controller-client,org.jboss.dmr,org.jboss.as.cli\n"),
@@ -90,39 +98,85 @@ public class SimplifiedJMSClientTestCase {
     }
 
     @Test
-    public void testSendAndReceiveWithContext() {
+    public void testSendAndReceiveWithInjectedContext() {
+        sendAndReceiveWithContext(context);
+    }
+
+    @Test
+    public void testSendAndReceiveWithCreatedContext() {
+        JMSContext ctx = factory.createContext();
+
+        sendAndReceiveWithContext(ctx);
+
+        ctx.close();
+    }
+
+    private void sendAndReceiveWithContext(JMSContext ctx) {
         String text = UUID.randomUUID().toString();
 
-        JMSProducer producer = context.createProducer();
-        producer.send(queue, text);
+        TemporaryQueue tempQueue = ctx.createTemporaryQueue();
 
-        JMSConsumer consumer = context.createConsumer(queue);
-        String t = consumer.receiveBody(String.class, adjust(500));
-        assertNotNull(t);
+        ctx.createProducer()
+                .send(tempQueue, text);
+
+        String t = ctx.createConsumer(tempQueue)
+                .receiveBody(String.class, adjust(2000));
         assertThat(t, is(text));
     }
 
     @Test
-    @TransactionScoped
-    public void testSendWith_REQUIRES_NEW_transaction() {
-        String text = UUID.randomUUID().toString();
-
-        producerBean.sendToDestination(text, false);
-
-        JMSConsumer consumer = context.createConsumer(queue);
-        String t = consumer.receiveBody(String.class, adjust(500));
-        assertNotNull(t);
-        assertThat(t, is(text));
+    public void testSendWith_REQUIRED_transaction() {
+        sendWith_REQUIRED_transaction(false);
     }
 
     @Test
-    public void testSendWith_REQUIRES_NEW_transactionAndRollback() {
+    public void testSendWith_REQUIRED_transactionAndRollback() {
+        sendWith_REQUIRED_transaction(true);
+    }
+
+    private void sendWith_REQUIRED_transaction(boolean rollback) {
         String text = UUID.randomUUID().toString();
 
-        producerBean.sendToDestination(text, true);
+        TemporaryQueue tempQueue = context.createTemporaryQueue();
 
-        JMSConsumer consumer = context.createConsumer(queue);
-        String t = consumer.receiveBody(String.class, adjust(500));
-        assertThat(t, is(nullValue()));
+        producerBean.sendToDestination(tempQueue, text, rollback);
+
+        String t = context.createConsumer(tempQueue)
+                .receiveBody(String.class, adjust(500));
+        if (rollback) {
+            assertThat(t, is(nullValue()));
+        } else {
+            assertThat(t, is(text));
+        }
+    }
+
+    @Test
+    public void testSendAndReceiveFromMDB() {
+        sendAndReceiveFromMDB(false);
+    }
+
+    @Test
+    public void testSendAndReceiveFromMDBWithRollback() {
+        sendAndReceiveFromMDB(true);
+    }
+
+    private void sendAndReceiveFromMDB(boolean rollback) {
+        String text = UUID.randomUUID().toString();
+
+        TemporaryQueue replyTo = context.createTemporaryQueue();
+
+        context.createProducer()
+                .setJMSReplyTo(replyTo)
+                .setProperty("rollback", rollback)
+                .send(queue, text);
+
+        String t = context.createConsumer(replyTo)
+                .receiveBody(String.class, adjust(2000));
+
+        if (rollback) {
+            assertThat(t, is(nullValue()));
+        } else {
+            assertThat(t, is(text));
+        }
     }
 }

@@ -22,7 +22,7 @@
 
 package org.jboss.as.test.integration.jms.auxiliary;
 
-import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
+import static javax.ejb.TransactionAttributeType.REQUIRED;
 
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
@@ -32,7 +32,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.jms.Destination;
 import javax.jms.JMSContext;
-import javax.jms.JMSProducer;
 
 import org.jboss.logging.Logger;
 
@@ -42,21 +41,16 @@ import org.jboss.logging.Logger;
 @Stateful
 @RequestScoped
 public class TransactedMessageProducer {
-    private static final Logger logger = Logger.getLogger(TransactedMessageProducer.class);
-
-    @Resource(name = "java:/queue/myAwesomeQueue")
-    private Destination destination;
-
     @Inject
     private JMSContext context;
 
     @Resource
     private SessionContext sessionContext;
 
-    @TransactionAttribute(value = REQUIRES_NEW)
-    public void sendToDestination(String text, boolean rollback) {
-        JMSProducer producer = context.createProducer();
-        producer.send(destination, text);
+    @TransactionAttribute(value = REQUIRED)
+    public void sendToDestination(Destination destination, String text, boolean rollback) {
+        context.createProducer()
+                .send(destination, text);
         if (rollback) {
             sessionContext.setRollbackOnly();
         }
