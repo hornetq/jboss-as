@@ -128,6 +128,7 @@
         <version.org.apache.maven.wagon.http-lightweight>2.2</version.org.apache.maven.wagon.http-lightweight>
         <version.org.apache.myfaces.core>2.1.8</version.org.apache.myfaces.core>
         <version.org.apache.neethi>3.0.2</version.org.apache.neethi>
+        <version.org.apache.qpid.proton>0.4</version.org.apache.qpid.proton>
         <version.org.apache.santuario>1.5.4</version.org.apache.santuario>
         <version.org.apache.velocity>1.7</version.org.apache.velocity>
         <version.org.apache.ws.security>1.6.10</version.org.apache.ws.security>
@@ -150,7 +151,6 @@
         <version.org.hibernate.validator>5.0.1.Final</version.org.hibernate.validator>
         <version.org.hibernate.javax.persistence.hibernate-jpa-2.1-api>1.0.0.Draft-16</version.org.hibernate.javax.persistence.hibernate-jpa-2.1-api>
         <version.org.hornetq>2.4-SNAPSHOT</version.org.hornetq>
-        <version.org.apache.qpid.proton>0.4</version.org.apache.qpid.proton>
         <version.org.infinispan>5.3.0.Final</version.org.infinispan>
         <version.org.jacorb>2.3.2.jbossorg-4</version.org.jacorb>
         <version.org.javassist>3.18.0-GA</version.org.javassist>
