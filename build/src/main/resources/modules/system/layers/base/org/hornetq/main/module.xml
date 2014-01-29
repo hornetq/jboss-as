@@ -33,6 +33,7 @@
         <artifact name="${org.hornetq:hornetq-jms-client}"/>
         <artifact name="${org.hornetq:hornetq-jms-server}"/>
         <artifact name="${org.hornetq:hornetq-native}"/>
+        <artifact name="${org.hornetq:hornetq-selector}"/>
     </resources>
 
     <dependencies>
