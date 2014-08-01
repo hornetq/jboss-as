@@ -158,6 +158,11 @@ public class JMSService implements Service<JMSServerManager> {
                     }
                 }
 
+                @Override
+                public void activationComplete() {
+                    // TODO move code from activated() to this method
+                }
+
                 public void deActivate() {
                     // passivate the activation service only if the HornetQ server is deactivated when it fails back
                     // and *not* during AS7 service container shutdown or reload (AS7-6840 / AS7-6881)
