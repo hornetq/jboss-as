@@ -21,25 +21,22 @@
  */
 package org.jboss.as.messaging;
 
-import org.hornetq.core.config.BackupStrategy;
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
-import org.hornetq.core.server.cluster.ha.HAPolicyTemplate;
-import org.jboss.as.controller.AbstractAddStepHandler;
-import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.OperationContext;
-import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
+import static org.jboss.as.messaging.HornetQActivationService.getHornetQServer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jboss.as.messaging.HornetQActivationService.getHornetQServer;
+import org.hornetq.core.config.BackupStrategy;
+import org.hornetq.core.config.Configuration;
+import org.hornetq.core.server.HornetQServer;
+import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.jboss.as.controller.AbstractAddStepHandler;
+import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceController;
 
 public class HAPolicyAdd extends AbstractAddStepHandler {
 
@@ -64,16 +61,11 @@ public class HAPolicyAdd extends AbstractAddStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
         final HornetQServer server = getHornetQServer(context, operation);
         if (server != null){
-            final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
-            addHAPolicyConfig(context, server.getConfiguration(), model, address.getLastElement().getValue());
+            addHAPolicyConfig(context, server.getConfiguration(), model);
         }
     }
 
-    public static void addHAPolicyConfig(OperationContext context, Configuration configuration, ModelNode model, String template) throws OperationFailedException {
-        HAPolicy policyTemplate = null;
-        if (template != null) {
-            policyTemplate = HAPolicyTemplate.valueOf(template).getHaPolicy();
-        }
+    public static void addHAPolicyConfig(OperationContext context, Configuration configuration, ModelNode model) throws OperationFailedException {
         boolean allowFailback = HAPolicyDefinition.ALLOW_FAILBACK.resolveModelAttribute(context, model).asBoolean();
         String backupGroupName = HAPolicyDefinition.BACKUP_GROUP_NAME.resolveModelAttribute(context, model).asString();
         int portOffset = HAPolicyDefinition.BACKUP_PORT_OFFSET.resolveModelAttribute(context, model).asInt();
@@ -104,10 +96,7 @@ public class HAPolicyAdd extends AbstractAddStepHandler {
         String scaleDownDiscoveryGroup = HAPolicyDefinition.SCALE_DOWN_DISCOVERY_GROUP.resolveModelAttribute(context, model).asString();
         String scaleDownGroupName = HAPolicyDefinition.SCALE_DOWN_GROUP_NAME.resolveModelAttribute(context, model).asString();
         HAPolicy policy;
-        if (policyTemplate != null) {
-            policy = policyTemplate;
-        }
-        else if (scaleDownDiscoveryGroup != null) {
+        if (scaleDownDiscoveryGroup != null) {
             policy = new HAPolicy(policyType,
                     requestBackup,
                     backupRequestRetries,

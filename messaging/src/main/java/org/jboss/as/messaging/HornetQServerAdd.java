@@ -493,11 +493,11 @@ class HornetQServerAdd implements OperationStepHandler {
     }
 
     static void processHAPolicy(final OperationContext context, final Configuration configuration, final ModelNode params) throws OperationFailedException {
-        if (params.hasDefined(HA_POLICY)) {
-            String template = params.get(HA_POLICY).asProperty().getName();
-            HAPolicyAdd.addHAPolicyConfig(context, configuration, params, template);
-        } else {
-            HAPolicyAdd.addHAPolicyConfig(context, configuration, params, null);
+        if (params.hasDefined(CommonAttributes.TYPE_ATTR_NAME)) {
+            ModelNode haPolicy = params.get(CommonAttributes.TYPE_ATTR_NAME, HA_POLICY);
+            if (haPolicy.isDefined()) {
+                HAPolicyAdd.addHAPolicyConfig(context, configuration, haPolicy);
+            }
         }
     }
 

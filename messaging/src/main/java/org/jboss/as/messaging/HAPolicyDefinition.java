@@ -26,9 +26,13 @@ import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 
+/**
+ * Singleton resource type=ha-policy that represents the HA Policy for its parent hornetq-server resource.
+ *
+ */
 public class HAPolicyDefinition extends SimpleResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.HA_POLICY);
+    public static final PathElement PATH = PathElement.pathElement("type", CommonAttributes.HA_POLICY);
 
     private final boolean registerRuntimeOnly;
 
@@ -39,6 +43,7 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition POLICY_TYPE = create("policy-type", STRING)
+            .setXmlName(CommonAttributes.TYPE_ATTR_NAME)
             .setAllowNull(true)
             .setAllowExpression(true)
             .setValidator(new EnumValidator<HAPolicy.POLICY_TYPE>(HAPolicy.POLICY_TYPE.class, false, true))

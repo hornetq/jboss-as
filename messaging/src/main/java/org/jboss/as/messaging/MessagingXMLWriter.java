@@ -50,6 +50,7 @@ import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.ROLE;
+import static org.jboss.as.messaging.CommonAttributes.TYPE_ATTR_NAME;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
 import static org.jboss.as.messaging.Namespace.CURRENT;
@@ -184,17 +185,21 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
     }
 
     private static void writeHAPolicy(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
-        if (node.hasDefined(HA_POLICY)) {
-            Property haPolicy = node.get(HA_POLICY).asProperty();
+        if (node.hasDefined(TYPE_ATTR_NAME)) {
+            Property prop = node.get(TYPE_ATTR_NAME).asProperty();
+            if (!prop.getName().equals(HA_POLICY)) {
+                return;
+            }
+            ModelNode haPolicy = prop.getValue();
 
             writer.writeStartElement(HA_POLICY);
-            writer.writeAttribute("type", haPolicy.getName());
+            HAPolicyDefinition.POLICY_TYPE.marshallAsAttribute(haPolicy, false, writer);
 
             for (AttributeDefinition attribute : HAPolicyDefinition.ATTRIBUTES) {
                 if(HAPolicyDefinition.POLICY_TYPE.equals(attribute)) {
                     continue;
                 }
-                attribute.marshallAsElement(haPolicy.getValue(), writer);
+                attribute.marshallAsElement(haPolicy, writer);
             }
 
             writer.writeEndElement();
