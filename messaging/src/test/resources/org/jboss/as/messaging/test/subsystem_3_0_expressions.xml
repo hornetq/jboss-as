@@ -91,7 +91,6 @@
             <restart-backup>true</restart-backup>
         </ha-policy>
         -->
-        <ha-policy />
         <connectors>
             <http-connector name="http" socket-binding="http">
                 <param key="batch-delay" value="${batch.delay:50}"/>

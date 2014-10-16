@@ -55,6 +55,7 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase {
 
         //stuff we arent bothered about
         KNOWN_ATTRIBUTES = new TreeSet<String>();
+        KNOWN_ATTRIBUTES.add("allowAutoFailBack");
         KNOWN_ATTRIBUTES.add("journalBufferSize");
         KNOWN_ATTRIBUTES.add("journalBufferTimeout");
         KNOWN_ATTRIBUTES.add("journalMaxIo");
