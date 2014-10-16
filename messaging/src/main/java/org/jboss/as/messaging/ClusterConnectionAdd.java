@@ -115,17 +115,33 @@ public class ClusterConnectionAdd extends AbstractAddStepHandler {
         final long clusterNotificationInterval = ClusterConnectionDefinition.NOTIFICATION_INTERVAL.resolveModelAttribute(context, model).asLong();
         final int clusterNotificationAttempts = ClusterConnectionDefinition.NOTIFICATION_ATTEMPTS.resolveModelAttribute(context, model).asInt();
 
+        ClusterConnectionConfiguration config = new ClusterConnectionConfiguration()
+                .setName(name)
+                .setAddress(address)
+                .setConnectorName(connectorName)
+                .setMinLargeMessageSize(minLargeMessageSize)
+                .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+                .setConnectionTTL(connectionTTL)
+                .setRetryInterval(retryInterval)
+                .setRetryIntervalMultiplier(retryIntervalMultiplier)
+                .setMaxRetryInterval(maxRetryInterval)
+                .setInitialConnectAttempts(initialConnectAttempts)
+                .setReconnectAttempts(reconnectAttempts)
+                .setCallTimeout(callTimeout)
+                .setCallFailoverTimeout(callFailoverTimeout)
+                .setDuplicateDetection(duplicateDetection)
+                .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+                .setMaxHops(maxHops)
+                .setConfirmationWindowSize(confirmationWindowSize)
+                .setClusterNotificationInterval(clusterNotificationInterval)
+                .setClusterNotificationAttempts(clusterNotificationAttempts);
+
         if (discoveryGroupName != null) {
-            return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
-                    retryInterval, retryIntervalMultiplier, maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
-                    duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    discoveryGroupName, clusterNotificationInterval, clusterNotificationAttempts, null);
         } else {
-            return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
-                    retryInterval, retryIntervalMultiplier, maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
-                    duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    staticConnectors, allowDirectOnly,clusterNotificationInterval, clusterNotificationAttempts, null);
+            config.setStaticConnectors(staticConnectors)
+                    .setAllowDirectConnectionsOnly(allowDirectOnly);
         }
+        return config;
     }
 
     private static List<String> getStaticConnectors(ModelNode model) {

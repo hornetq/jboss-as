@@ -13,8 +13,6 @@ import java.util.List;
 
 import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.core.config.BackupStrategy;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
-import org.hornetq.core.server.cluster.ha.HAPolicyTemplate;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
@@ -35,20 +33,6 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
     public static final PathElement PATH = PathElement.pathElement("type", CommonAttributes.HA_POLICY);
 
     private final boolean registerRuntimeOnly;
-
-    public static final SimpleAttributeDefinition TEMPLATE = create("template", STRING)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setValidator(new EnumValidator<HAPolicyTemplate>(HAPolicyTemplate.class, false, true))
-            .build();
-
-    public static final SimpleAttributeDefinition POLICY_TYPE = create("policy-type", STRING)
-            .setXmlName(CommonAttributes.TYPE_ATTR_NAME)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setValidator(new EnumValidator<HAPolicy.POLICY_TYPE>(HAPolicy.POLICY_TYPE.class, false, true))
-            .setRestartAllServices()
-            .build();
 
     public static final SimpleAttributeDefinition REQUEST_BACKUP = create("request-backup", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultHapolicyRequestBackup()))
@@ -176,8 +160,6 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
 
     static{
         AttributeDefinition[] list = new AttributeDefinition[]{
-                TEMPLATE,
-                POLICY_TYPE,
                 REQUEST_BACKUP,
                 BACKUP_REQUEST_RETRIES,
                 BACKUP_REQUEST_RETRY_INTERVAL,

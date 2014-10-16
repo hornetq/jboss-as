@@ -92,7 +92,7 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
         String type = reader.getAttributeValue(0);
 
         ModelNode haPolicyAddOperation = getEmptyOperation(ADD, address.clone().add("type", CommonAttributes.HA_POLICY));
-        haPolicyAddOperation.get(HAPolicyDefinition.POLICY_TYPE.getName()).set(type);
+        //haPolicyAddOperation.get(HAPolicyDefinition.POLICY_TYPE.getName()).set(type);
 
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String localName = reader.getLocalName();

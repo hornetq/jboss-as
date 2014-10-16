@@ -81,11 +81,7 @@ public class HAPolicyAdd extends AbstractAddStepHandler {
         boolean failoverOnShutdown = HAPolicyDefinition.FAILOVER_ON_SERVER_SHUTDOWN.resolveModelAttribute(context, model).asBoolean();
         int maxBackups = HAPolicyDefinition.MAX_BACKUPS.resolveModelAttribute(context, model).asInt();
         int maxSavedReplicatedJournalSize = HAPolicyDefinition.MAX_SAVED_REPLICATED_JOURNAL_SIZE.resolveModelAttribute(context, model).asInt();
-        HAPolicy.POLICY_TYPE policyType = null;
-        modelNode = HAPolicyDefinition.POLICY_TYPE.resolveModelAttribute(context, model);
-        if (modelNode.isDefined()) {
-            policyType = HAPolicy.POLICY_TYPE.valueOf(modelNode.asString());
-        }
+
         List<String> remoteConnectors = getRemoteConnectors(model);
         String replicationClustername = HAPolicyDefinition.REPLICATION_CLUSTERNAME.resolveModelAttribute(context, model).asString();
         boolean requestBackup = HAPolicyDefinition.REQUEST_BACKUP.resolveModelAttribute(context, model).asBoolean();
@@ -96,6 +92,8 @@ public class HAPolicyAdd extends AbstractAddStepHandler {
         String scaleDownDiscoveryGroup = HAPolicyDefinition.SCALE_DOWN_DISCOVERY_GROUP.resolveModelAttribute(context, model).asString();
         String scaleDownGroupName = HAPolicyDefinition.SCALE_DOWN_GROUP_NAME.resolveModelAttribute(context, model).asString();
         HAPolicy policy;
+        // FIXME
+        /*
         if (scaleDownDiscoveryGroup != null) {
             policy = new HAPolicy(policyType,
                     requestBackup,
@@ -140,6 +138,7 @@ public class HAPolicyAdd extends AbstractAddStepHandler {
                     restartBackup);
         }
         configuration.setHAPolicy(policy);
+        */
     }
 
     private static List<String> getRemoteConnectors(ModelNode model) {

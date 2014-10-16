@@ -193,6 +193,8 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
             ModelNode haPolicy = prop.getValue();
 
             writer.writeStartElement(HA_POLICY);
+            // FIXME
+            /*
             HAPolicyDefinition.POLICY_TYPE.marshallAsAttribute(haPolicy, false, writer);
 
             for (AttributeDefinition attribute : HAPolicyDefinition.ATTRIBUTES) {
@@ -201,6 +203,7 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                 }
                 attribute.marshallAsElement(haPolicy, writer);
             }
+            */
 
             writer.writeEndElement();
         }
