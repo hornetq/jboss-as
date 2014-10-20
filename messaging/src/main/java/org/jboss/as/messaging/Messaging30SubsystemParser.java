@@ -87,9 +87,6 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
     @Override
     protected void processHaPolicy(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
 
-        //requireSingleAttribute(reader, CommonAttributes.TYPE_ATTR_NAME);
-        //String type = reader.getAttributeValue(0);
-
         ModelNode haPolicyAddOperation = getEmptyOperation(ADD, address.clone().add("type", CommonAttributes.HA_POLICY));
         //haPolicyAddOperation.get(HAPolicyDefinition.POLICY_TYPE.getName()).set(type);
 
@@ -104,6 +101,6 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             }
         }
 
-        //list.add(haPolicyAddOperation);
+        list.add(haPolicyAddOperation);
     }
 }

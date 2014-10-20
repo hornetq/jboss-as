@@ -140,7 +140,7 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         // New line after the simpler elements
         writeNewLine(writer);
 
-        //writeHAPolicy(writer, node);
+        writeHAPolicy(writer, node);
         writeConnectors(writer, node);
         writeAcceptors(writer, node);
         writeBroadcastGroups(writer, node.get(BROADCAST_GROUP));

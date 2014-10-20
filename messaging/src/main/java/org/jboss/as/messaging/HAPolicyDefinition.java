@@ -36,33 +36,38 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition REQUEST_BACKUP = create("request-backup", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultHapolicyRequestBackup()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_REQUEST_RETRIES = create("backup-request-retries", INT)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetries()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_REQUEST_RETRY_INTERVAL = create("backup-request-retry-interval", LONG)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetryInterval()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition MAX_BACKUPS = create("max-backups", INT)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyMaxBackups()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_PORT_OFFSET = create("backup-port-offset", INT)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupPortOffset()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_STRATEGY_TYPE = create("backup-strategy", STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setValidator(new EnumValidator<BackupStrategy>(BackupStrategy.class, false, true))
+            .setValidator(new EnumValidator<>(BackupStrategy.class, false, true))
             .setRestartAllServices()
             .build();
 
@@ -105,46 +110,53 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
             .build();
     public static final SimpleAttributeDefinition CHECK_FOR_LIVE_SERVER = create("check-for-live-server", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultCheckForLiveServer()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition ALLOW_FAILBACK = create("allow-failback", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultAllowAutoFailback()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition FAILBACK_DELAY = create("failback-delay", LONG)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition FAILOVER_ON_SERVER_SHUTDOWN = create("failover-on-shutdown", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultFailoverOnServerShutdown()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition REPLICATION_CLUSTERNAME = create("replication-clustername", STRING)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition SCALE_DOWN_CLUSTERNAME = create("scale-down-clustername", STRING)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition MAX_SAVED_REPLICATED_JOURNAL_SIZE = create("max-saved-replicated-journal-size", INT)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition SCALE_DOWN = create("scale-down", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultScaleDown()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition RESTART_BACKUP = create("restart-backup", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultRestartBackup()))
+            .setAllowNull(true)
             .setAllowExpression(true)
             .build();
 

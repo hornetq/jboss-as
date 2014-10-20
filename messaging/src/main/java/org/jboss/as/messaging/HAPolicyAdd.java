@@ -58,7 +58,8 @@ public class HAPolicyAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
+        super.performRuntime(context, operation, model);
         final HornetQServer server = getHornetQServer(context, operation);
         if (server != null){
             addHAPolicyConfig(context, server.getConfiguration(), model);
