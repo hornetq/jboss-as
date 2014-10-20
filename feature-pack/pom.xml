@@ -1420,17 +1420,12 @@
 
         <dependency>
             <groupId>org.apache.qpid</groupId>
-            <artifactId>proton-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.qpid</groupId>
             <artifactId>proton-jms</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.qpid</groupId>
-            <artifactId>proton-j-impl</artifactId>
+            <artifactId>proton-j</artifactId>
         </dependency>
 
         <dependency>
@@ -1759,6 +1754,11 @@
         <dependency>
             <groupId>org.hornetq</groupId>
             <artifactId>hornetq-native</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hornetq</groupId>
+            <artifactId>hornetq-proton-plug</artifactId>
         </dependency>
 
         <dependency>
