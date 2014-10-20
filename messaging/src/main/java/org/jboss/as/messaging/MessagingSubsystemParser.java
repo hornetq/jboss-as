@@ -308,6 +308,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     break;
                 case CLUSTERED:
                 case SHARED_STORE:
+                case ALLOW_FAILBACK:
                     // log that the attribute is deprecated but handle it anyway
                     MessagingLogger.ROOT_LOGGER.deprecatedXMLElement(element.toString());
                 default:

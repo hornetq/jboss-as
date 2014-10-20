@@ -48,6 +48,7 @@ public enum Element {
    ADDRESS(getAttributeDefinitions(QueueDefinition.ADDRESS, DivertDefinition.ADDRESS,
            GroupingHandlerDefinition.GROUPING_HANDLER_ADDRESS, ClusterConnectionDefinition.ADDRESS)),
    ADDRESS_SETTINGS(CommonAttributes.ADDRESS_SETTINGS),
+   @Deprecated
    ALLOW_FAILBACK(CommonAttributes.ALLOW_FAILBACK),
    ASYNC_CONNECTION_EXECUTION_ENABLED(CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED),
    BACKUP(CommonAttributes.BACKUP),

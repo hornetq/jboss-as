@@ -33,6 +33,7 @@ import static org.jboss.as.controller.client.helpers.MeasurementUnit.PERCENTAGE;
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.RESTART_ALL_SERVICES;
 import static org.jboss.as.messaging.AttributeMarshallers.NOOP_MARSHALLER;
 import static org.jboss.as.messaging.MessagingExtension.VERSION_1_2_0;
+import static org.jboss.as.messaging.MessagingExtension.VERSION_3_0_0;
 import static org.jboss.as.messaging.jms.Validators.noDuplicateElements;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
@@ -77,11 +78,13 @@ public interface CommonAttributes {
 
     SensitiveTargetAccessConstraintDefinition MESSAGING_SECURITY_DEF = new SensitiveTargetAccessConstraintDefinition(MESSAGING_SECURITY);
 
+    @Deprecated
     SimpleAttributeDefinition ALLOW_FAILBACK = create("allow-failback", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultAllowAutoFailback()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
+            .setDeprecated(VERSION_3_0_0)
             .build();
 
     SimpleAttributeDefinition ASYNC_CONNECTION_EXECUTION_ENABLED = create( "async-connection-execution-enabled", BOOLEAN)
@@ -721,7 +724,7 @@ public interface CommonAttributes {
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultSharedStore()))
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setDeprecated(MessagingExtension.VERSION_3_0_0)
+            .setDeprecated(VERSION_3_0_0)
             .setRestartAllServices()
             .build();
 
