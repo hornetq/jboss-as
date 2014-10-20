@@ -67,6 +67,7 @@ import org.jboss.as.controller.transform.description.DiscardAttributeChecker.Dis
 import org.jboss.as.controller.transform.description.OperationTransformationOverrideBuilder;
 import org.jboss.as.controller.transform.description.ResourceTransformationDescriptionBuilder;
 import org.jboss.as.controller.transform.description.TransformationDescriptionBuilder;
+import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -132,7 +133,7 @@ public class MessagingTransformers {
                 }
             }
         }, SHARED_STORE);
-        hornetqServer.rejectChildResource(HAPolicyDefinition.PATH);
+        hornetqServer.rejectChildResource(NoneDefinition.PATH);
 
         ResourceTransformationDescriptionBuilder addressSetting = hornetqServer.addChildResource(AddressSettingDefinition.PATH);
         rejectDefinedAttributeWithDefaultValue(addressSetting, MAX_REDELIVERY_DELAY, REDELIVERY_MULTIPLIER);

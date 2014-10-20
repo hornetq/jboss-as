@@ -46,6 +46,7 @@ import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.services.path.ResolvePathHandler;
+import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -207,7 +208,7 @@ public class MessagingExtension implements Extension {
         serverRegistration.registerSubModel(new ClusterConnectionDefinition(registerRuntimeOnly));
 
         // HA Policy
-        serverRegistration.registerSubModel(new HAPolicyDefinition(registerRuntimeOnly));
+        serverRegistration.registerSubModel(NoneDefinition.INSTANCE);
 
         // Grouping Handler
         serverRegistration.registerSubModel(new GroupingHandlerDefinition(registerRuntimeOnly));

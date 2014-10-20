@@ -125,6 +125,7 @@ import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.controller.services.path.PathManagerService;
+import org.jboss.as.messaging.ha.HAPolicyConfiguration;
 import org.jboss.as.messaging.jms.JMSService;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.as.network.OutboundSocketBinding;
@@ -445,7 +446,7 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setWildcardRoutingEnabled(WILD_CARD_ROUTING_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
         processAddressSettings(context, configuration, model);
-        processHAPolicy(context, configuration, model);
+        HAPolicyConfiguration.addHAPolicyConfig(context, configuration, model);
         processSecuritySettings(context, configuration, model);
         //process deprecated interceptors
         processRemotingInterceptors(context, configuration, model);
@@ -489,16 +490,7 @@ class HornetQServerAdd implements OperationStepHandler {
         }
     }
 
-    static void processHAPolicy(final OperationContext context, final Configuration configuration, final ModelNode params) throws OperationFailedException {
-        if (params.hasDefined(CommonAttributes.TYPE_ATTR_NAME)) {
-            ModelNode haPolicy = params.get(CommonAttributes.TYPE_ATTR_NAME, HA_POLICY);
-            if (haPolicy.isDefined()) {
-                HAPolicyAdd.addHAPolicyConfig(context, configuration, haPolicy);
-            }
-        }
-    }
-
-       /**
+    /**
      * Process the HornetQ server-side old style interceptors.
      */
     static void processRemotingInterceptors(final OperationContext context, final Configuration configuration, final ModelNode params) {

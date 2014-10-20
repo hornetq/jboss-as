@@ -74,7 +74,9 @@
         <journal-directory path="${my.journal.dir:test}" relative-to="test" />
         <large-messages-directory path="${my.largemessages.dir:test}" relative-to="test" />
         <ha-policy>
-
+            <none>
+                <scale-down />
+            </none>
         </ha-policy>
         <!--
         <ha-policy type="NONE">

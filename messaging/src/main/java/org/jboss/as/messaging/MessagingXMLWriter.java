@@ -51,6 +51,7 @@ import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.ROLE;
 import static org.jboss.as.messaging.CommonAttributes.TYPE_ATTR_NAME;
+import static org.jboss.as.messaging.Element.NONE;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
 import static org.jboss.as.messaging.Namespace.CURRENT;
@@ -65,6 +66,8 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
+import org.jboss.as.messaging.ha.NoneDefinition;
+import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
@@ -185,28 +188,34 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
     }
 
     private static void writeHAPolicy(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
-        if (node.hasDefined(TYPE_ATTR_NAME)) {
-            Property prop = node.get(TYPE_ATTR_NAME).asProperty();
-            if (!prop.getName().equals(HA_POLICY)) {
-                return;
-            }
-            ModelNode haPolicy = prop.getValue();
+        if (node.hasDefined(CommonAttributes.HA_POLICY)) {
 
-            writer.writeStartElement(HA_POLICY);
-            // FIXME
-            /*
-            HAPolicyDefinition.POLICY_TYPE.marshallAsAttribute(haPolicy, false, writer);
+            writer.writeStartElement(CommonAttributes.HA_POLICY);
 
-            for (AttributeDefinition attribute : HAPolicyDefinition.ATTRIBUTES) {
-                if(HAPolicyDefinition.POLICY_TYPE.equals(attribute)) {
-                    continue;
-                }
-                attribute.marshallAsElement(haPolicy, writer);
+            Property prop = node.get(CommonAttributes.HA_POLICY).asProperty();
+            String type = prop.getName();
+
+            switch (type) {
+                case CommonAttributes.NONE:
+                    writeHAPolicyNone(writer, prop.getValue());
             }
-            */
 
             writer.writeEndElement();
         }
+    }
+
+    private static void writeHAPolicyNone(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(NONE.getLocalName());
+
+        NoneDefinition.INSTANCE.getAttributes();
+
+        if (node.hasDefined(ScaleDownAttributes.SCALE_DOWN.getName())) {
+            writer.writeStartElement(ScaleDownAttributes.SCALE_DOWN.getXmlName());
+            writer.writeEndElement();
+        }
+
+        writer.writeEndElement();
+
     }
 
     private static void writeConnectors(final XMLExtendedStreamWriter writer, final ModelNode node) throws XMLStreamException {

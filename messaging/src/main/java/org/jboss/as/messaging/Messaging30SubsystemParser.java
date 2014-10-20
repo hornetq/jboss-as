@@ -32,6 +32,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.parsing.ParseUtils;
+import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 
@@ -87,20 +88,43 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
     @Override
     protected void processHaPolicy(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
 
-        ModelNode haPolicyAddOperation = getEmptyOperation(ADD, address.clone().add("type", CommonAttributes.HA_POLICY));
-        //haPolicyAddOperation.get(HAPolicyDefinition.POLICY_TYPE.getName()).set(type);
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case NONE:
+                    procesHaPolicyNone(reader, address, list);
+                    break;
+                default:
+                throw ParseUtils.unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void procesHaPolicyNone(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode haPolicyAdd = getEmptyOperation(ADD, address.clone().add("ha-policy", "none"));
 
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String localName = reader.getLocalName();
             final Element element = Element.forName(localName);
 
-            if (HA_POLICY_ATTRIBUTES.contains(element)) {
-                handleElementText(reader, element, haPolicyAddOperation);
-            } else {
-                throw ParseUtils.unexpectedElement(reader);
+            switch (element) {
+                case SCALE_DOWN:
+                    processScaleDown(reader, haPolicyAdd);
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
             }
         }
 
-        list.add(haPolicyAddOperation);
+        list.add(haPolicyAdd);
+
+    }
+
+    private void processScaleDown(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {
+        operation.get(ScaleDownAttributes.SCALE_DOWN.getName()).set(true);
+
+        ParseUtils.requireNoContent(reader);
     }
 }
