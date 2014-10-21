@@ -36,6 +36,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.hornetq.core.config.HAPolicyConfiguration;
+import org.hornetq.core.config.ScaleDownConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
@@ -104,5 +107,8 @@ public class NoneDefinition extends PersistentResourceDefinition {
         return ATTRIBUTES;
     }
 
-
+    static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
+        ScaleDownConfiguration scaleDownConfiguration = ScaleDownAttributes.addScaleDownConfiguration(context, model);
+        return new LiveOnlyPolicyConfiguration(scaleDownConfiguration);
+    }
 }

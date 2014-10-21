@@ -888,6 +888,8 @@ public interface CommonAttributes {
     String REMOTING_INCOMING_INTERCEPTOR = "remoting-incoming-interceptor";
     String REMOTING_OUTGOING_INTERCEPTOR = "remoting-outgoing-interceptor";
     String RESOURCE_ADAPTER = "resource-adapter";
+    String REPLICATION = "replication";
+    String REPLICATION_MASTER = "replication-master";
     String RESOLVE_ADDRESS_SETTING = "resolve-address-setting";
     String ROLE = "role";
     String ROLES_ATTR_NAME = "roles";

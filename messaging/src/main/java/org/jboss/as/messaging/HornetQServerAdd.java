@@ -92,7 +92,7 @@ import static org.jboss.as.messaging.CommonAttributes.TRANSACTION_TIMEOUT_SCAN_P
 import static org.jboss.as.messaging.CommonAttributes.WILD_CARD_ROUTING_ENABLED;
 import static org.jboss.as.messaging.PathDefinition.PATHS;
 import static org.jboss.as.messaging.PathDefinition.RELATIVE_TO;
-import static org.jboss.as.messaging.ha.HAPolicyConfiguration.addHAPolicyConfiguration;
+import static org.jboss.as.messaging.ha.HAPolicyConfigurationBuilder.addHAPolicyConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -444,9 +444,9 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setTransactionTimeoutScanPeriod(TRANSACTION_TIMEOUT_SCAN_PERIOD.resolveModelAttribute(context, model).asLong());
         configuration.setWildcardRoutingEnabled(WILD_CARD_ROUTING_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
-        processAddressSettings(context, configuration, model);
         addHAPolicyConfiguration(context, configuration, model);
 
+        processAddressSettings(context, configuration, model);
         processSecuritySettings(context, configuration, model);
         //process deprecated interceptors
         processRemotingInterceptors(context, configuration, model);

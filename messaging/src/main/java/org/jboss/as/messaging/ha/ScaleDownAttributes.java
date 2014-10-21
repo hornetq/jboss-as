@@ -25,8 +25,14 @@ package org.jboss.as.messaging.ha;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hornetq.api.config.HornetQDefaultConfiguration;
+import org.hornetq.core.config.ScaleDownConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ParameterCorrector;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -100,4 +106,29 @@ public class ScaleDownAttributes {
             })
             .setRestartAllServices()
             .build();
+
+    static ScaleDownConfiguration addScaleDownConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
+        ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
+
+        scaleDownConfiguration.setScaleDown(SCALE_DOWN.resolveModelAttribute(context, model).asBoolean());
+
+        ModelNode clusterName = CLUSTER_NAME.resolveModelAttribute(context, model);
+        if (clusterName.isDefined()) {
+            scaleDownConfiguration.setClusterName(clusterName.asString());
+        }
+        ModelNode groupName = GROUP_NAME.resolveModelAttribute(context, model);
+        if (groupName.isDefined()) {
+            scaleDownConfiguration.setGroupName(groupName.asString());
+        }
+        ModelNode discoveryGroupName = DISCOVERY_GROUP_NAME.resolveModelAttribute(context, model);
+        if (discoveryGroupName.isDefined()) {
+            scaleDownConfiguration.setDiscoveryGroup(discoveryGroupName.asString());
+        }
+        ModelNode connectors = CONNECTOR.resolveModelAttribute(context, model);
+        if (connectors.isDefined()) {
+            List<String> connectorNames = new ArrayList<>(connectors.keys());
+            scaleDownConfiguration.setConnectors(connectorNames);
+        }
+        return scaleDownConfiguration;
+    }
 }
