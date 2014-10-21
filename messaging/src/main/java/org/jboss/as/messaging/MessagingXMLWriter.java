@@ -228,11 +228,15 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
     private static void writeScaleDown(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
         writer.writeStartElement(CommonAttributes.SCALE_DOWN);
         ScaleDownAttributes.SCALE_DOWN.marshallAsAttribute(node, false, writer);
-        ScaleDownAttributes.CLUSTER_NAME.marshallAsAttribute(node, false, writer);
-        ScaleDownAttributes.GROUP_NAME.marshallAsAttribute(node, false, writer);
+        ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME.marshallAsAttribute(node, false, writer);
+        ScaleDownAttributes.SCALE_DOWN_GROUP_NAME.marshallAsAttribute(node, false, writer);
 
-        ScaleDownAttributes.DISCOVERY_GROUP_NAME.marshallAsElement(node, writer);
-        ScaleDownAttributes.CONNECTOR.marshallAsElement(node, writer);
+        if (node.hasDefined(ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME.getName())) {
+            writer.writeStartElement(CommonAttributes.DISCOVERY_GROUP_REF);
+            ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME.marshallAsAttribute(node, false, writer);
+            writer.writeEndElement();
+        }
+        ScaleDownAttributes.SCALE_DOWN_CONNECTORS.marshallAsElement(node, writer);
 
         writer.writeEndElement();
     }

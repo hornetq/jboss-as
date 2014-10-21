@@ -26,6 +26,9 @@ import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.hornetq.api.config.HornetQDefaultConfiguration;
@@ -47,37 +50,43 @@ import org.jboss.dmr.ModelType;
  */
 public class ScaleDownAttributes {
 
+    private static final String SCALE_DOWN_DISCOVERY_GROUP_STR = "scale-down-discovery-group";
+    private static final String SCALE_DOWN_CONNECTORS_STR = "scale-down-connectors";
+
     public static SimpleAttributeDefinition SCALE_DOWN = SimpleAttributeDefinitionBuilder.create(CommonAttributes.SCALE_DOWN, BOOLEAN)
-            .setAllowNull(true)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultScaleDown()))
-            .setAllowExpression(true)
             // scale-down attribute is represented with the "enabled" attribute of the "scale-down" XML element
             .setXmlName(CommonAttributes.ENABLED)
-            .setRestartAllServices()
-            .build();
-
-    public static SimpleAttributeDefinition CLUSTER_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.CLUSTER_NAME, STRING)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultScaleDown()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
-    public static SimpleAttributeDefinition GROUP_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.GROUP_NAME, STRING)
+    public static SimpleAttributeDefinition SCALE_DOWN_CLUSTER_NAME = SimpleAttributeDefinitionBuilder.create("scale-down-cluster-name", STRING)
+            .setXmlName(CommonAttributes.CLUSTER_NAME)
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
-    public static SimpleAttributeDefinition DISCOVERY_GROUP_NAME =  SimpleAttributeDefinitionBuilder.create(CommonAttributes.DISCOVERY_GROUP_NAME, STRING)
+    public static SimpleAttributeDefinition SCALE_DOWN_GROUP_NAME = SimpleAttributeDefinitionBuilder.create("scale-down-group-name", STRING)
+            .setXmlName(CommonAttributes.GROUP_NAME)
             .setAllowNull(true)
-            .setAlternatives(CommonAttributes.CONNECTOR)
-            .setAttributeMarshaller(AttributeMarshallers.DISCOVERY_GROUP_MARSHALLER)
+            .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
-    public static AttributeDefinition CONNECTOR = new SimpleMapAttributeDefinition.Builder(CommonAttributes.CONNECTOR, true)
-            .setAlternatives(DISCOVERY_GROUP_NAME.getName())
-            .setAttributeMarshaller(AttributeMarshallers.CONNECTORS_MARSHALLER)
+    public static SimpleAttributeDefinition SCALE_DOWN_DISCOVERY_GROUP_NAME =  SimpleAttributeDefinitionBuilder.create(SCALE_DOWN_DISCOVERY_GROUP_STR, STRING)
+            .setXmlName(CommonAttributes.DISCOVERY_GROUP_NAME)
+            .setAllowNull(true)
+            .setAlternatives(SCALE_DOWN_CONNECTORS_STR)
+            .setRestartAllServices()
+            .build();
+
+    public static AttributeDefinition SCALE_DOWN_CONNECTORS = new SimpleMapAttributeDefinition.Builder(SCALE_DOWN_CONNECTORS_STR, true)
+            .setAttributeMarshaller(new AttributeMarshallers.ConnectorsMarshaller(SCALE_DOWN_CONNECTORS_STR))
+            .setAlternatives(SCALE_DOWN_DISCOVERY_GROUP_STR)
+            // we use this corrector so that connectors are represented consistently with other messaging resources
             .setCorrector(new ParameterCorrector() {
                 /*
                  * https://issues.jboss.org/browse/WFLY-1796
@@ -107,24 +116,32 @@ public class ScaleDownAttributes {
             .setRestartAllServices()
             .build();
 
+    public static Collection<AttributeDefinition> SCALE_DOWN_ATTRIBUTES =  Collections.unmodifiableList(Arrays.asList(
+            SCALE_DOWN,
+            SCALE_DOWN_CLUSTER_NAME,
+            SCALE_DOWN_GROUP_NAME,
+            SCALE_DOWN_DISCOVERY_GROUP_NAME,
+            SCALE_DOWN_CONNECTORS
+    ));
+
     static ScaleDownConfiguration addScaleDownConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
         ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
 
         scaleDownConfiguration.setScaleDown(SCALE_DOWN.resolveModelAttribute(context, model).asBoolean());
 
-        ModelNode clusterName = CLUSTER_NAME.resolveModelAttribute(context, model);
+        ModelNode clusterName = SCALE_DOWN_CLUSTER_NAME.resolveModelAttribute(context, model);
         if (clusterName.isDefined()) {
             scaleDownConfiguration.setClusterName(clusterName.asString());
         }
-        ModelNode groupName = GROUP_NAME.resolveModelAttribute(context, model);
+        ModelNode groupName = SCALE_DOWN_GROUP_NAME.resolveModelAttribute(context, model);
         if (groupName.isDefined()) {
             scaleDownConfiguration.setGroupName(groupName.asString());
         }
-        ModelNode discoveryGroupName = DISCOVERY_GROUP_NAME.resolveModelAttribute(context, model);
+        ModelNode discoveryGroupName = SCALE_DOWN_DISCOVERY_GROUP_NAME.resolveModelAttribute(context, model);
         if (discoveryGroupName.isDefined()) {
             scaleDownConfiguration.setDiscoveryGroup(discoveryGroupName.asString());
         }
-        ModelNode connectors = CONNECTOR.resolveModelAttribute(context, model);
+        ModelNode connectors = SCALE_DOWN_CONNECTORS.resolveModelAttribute(context, model);
         if (connectors.isDefined()) {
             List<String> connectorNames = new ArrayList<>(connectors.keys());
             scaleDownConfiguration.setConnectors(connectorNames);

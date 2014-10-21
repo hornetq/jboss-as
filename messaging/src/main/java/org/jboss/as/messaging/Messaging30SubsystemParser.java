@@ -26,7 +26,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD
 import static org.jboss.as.controller.operations.common.Util.getEmptyOperation;
 import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
-import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
@@ -39,7 +38,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.parsing.ParseUtils;
-import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
+import org.jboss.as.messaging.ha.HAAttributes;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
@@ -142,14 +141,14 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
                 case GROUP_NAME: {
-                    ReplicationMasterDefinition.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    HAAttributes.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
                     break;
                 }
                 case CLUSTER_NAME: {
-                    ReplicationMasterDefinition.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    HAAttributes.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
                     break;                }
                 case CHECK_FOR_LIVE_SERVER: {
-                    ReplicationMasterDefinition.CHECK_FOR_LIVE_SERVER.parseAndSetParameter(attrValue, operation, reader);
+                    HAAttributes.CHECK_FOR_LIVE_SERVER.parseAndSetParameter(attrValue, operation, reader);
                     break;
                 } default: {
                     throw ParseUtils.unexpectedAttribute(reader, i);
@@ -173,11 +172,11 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                     break;
                 }
                 case GROUP_NAME: {
-                    ScaleDownAttributes.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    ScaleDownAttributes.SCALE_DOWN_GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
                     break;
                 }
                 case CLUSTER_NAME: {
-                    ScaleDownAttributes.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
                     break;
                 } default: {
                     throw ParseUtils.unexpectedAttribute(reader, i);
@@ -197,12 +196,12 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             switch (element) {
                 case DISCOVERY_GROUP_REF: {
                     checkOtherElementIsNotAlreadyDefined(reader, seen, Element.DISCOVERY_GROUP_REF, Element.CONNECTORS);
-                    final String attrValue = readStringAttributeElement(reader, ScaleDownAttributes.DISCOVERY_GROUP_NAME.getXmlName());
-                    ScaleDownAttributes.DISCOVERY_GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    final String attrValue = readStringAttributeElement(reader, ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME.getXmlName());
+                    ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
                     break;
                 } case CONNECTORS: {
                     checkOtherElementIsNotAlreadyDefined(reader, seen, Element.CONNECTORS, Element.DISCOVERY_GROUP_REF);
-                    operation.get(CONNECTOR).set(processJmsConnectors(reader));
+                    operation.get(ScaleDownAttributes.SCALE_DOWN_CONNECTORS.getName()).set(processJmsConnectors(reader));
                     break;
                 }
                 default:

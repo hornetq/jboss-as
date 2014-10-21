@@ -890,6 +890,7 @@ public interface CommonAttributes {
     String RESOURCE_ADAPTER = "resource-adapter";
     String REPLICATION = "replication";
     String REPLICATION_MASTER = "replication-master";
+    String REPLICATION_SLAVE = "replication-slave";
     String RESOLVE_ADDRESS_SETTING = "resolve-address-setting";
     String ROLE = "role";
     String ROLES_ATTR_NAME = "roles";
