@@ -25,7 +25,11 @@ package org.jboss.as.messaging;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.operations.common.Util.getEmptyOperation;
 import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
+import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
+import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
+import static org.jboss.as.messaging.CommonAttributes.NONE;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -35,6 +39,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.parsing.ParseUtils;
+import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
@@ -99,6 +104,9 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case NONE:
                     procesHaPolicyNone(reader, address, list);
                     break;
+                case REPLICATION_MASTER:
+                    procesHaPolicyReplicationMaster(reader, address, list);
+                    break;
                 default:
                 throw ParseUtils.unexpectedElement(reader);
             }
@@ -106,7 +114,7 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
     }
 
     private void procesHaPolicyNone(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
-        ModelNode haPolicyAdd = getEmptyOperation(ADD, address.clone().add("ha-policy", "none"));
+        ModelNode haPolicyAdd = getEmptyOperation(ADD, address.clone().add(HA_POLICY, NONE));
 
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String localName = reader.getLocalName();
@@ -123,6 +131,35 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
 
         list.add(haPolicyAdd);
 
+    }
+
+    private void procesHaPolicyReplicationMaster(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address.clone().add(HA_POLICY, REPLICATION_MASTER));
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case GROUP_NAME: {
+                    ReplicationMasterDefinition.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case CLUSTER_NAME: {
+                    ReplicationMasterDefinition.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;                }
+                case CHECK_FOR_LIVE_SERVER: {
+                    ReplicationMasterDefinition.CHECK_FOR_LIVE_SERVER.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        requireNoContent(reader);
+
+        list.add(operation);
     }
 
     private void processScaleDown(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {

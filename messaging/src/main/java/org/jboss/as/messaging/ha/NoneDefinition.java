@@ -35,6 +35,7 @@ import static org.jboss.as.messaging.ha.ScaleDownAttributes.SCALE_DOWN;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import org.hornetq.core.config.HAPolicyConfiguration;
 import org.hornetq.core.config.ScaleDownConfiguration;
@@ -44,10 +45,14 @@ import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.OperationStepHandler;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
+import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.messaging.AlternativeAttributeCheckHandler;
 import org.jboss.as.messaging.HornetQReloadRequiredHandlers;
 import org.jboss.as.messaging.MessagingExtension;
@@ -69,6 +74,12 @@ public class NoneDefinition extends PersistentResourceDefinition {
     ));
 
     private static final AbstractAddStepHandler ADD  = new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
+        @Override
+        public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+            super.execute(context, operation);
+            context.addStep(ManagementHelper.checkNoOtherSibling(HA_POLICY), MODEL);
+        }
+
         @Override
         protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
             checkAlternatives(operation, CONNECTOR.getName(), (DISCOVERY_GROUP_NAME.getName()), true);

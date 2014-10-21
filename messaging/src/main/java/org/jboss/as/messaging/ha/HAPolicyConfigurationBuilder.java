@@ -30,7 +30,6 @@ import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.HAPolicyConfiguration;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.messaging.CommonAttributes;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 

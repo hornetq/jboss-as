@@ -24,4 +24,12 @@
             </none>
         </ha-policy>
     </hornetq-server>
+    <hornetq-server name="ha-policy-replication-master">
+        <ha-policy>
+            <replication-master cluster-name="${replication-master.cluster-name:mycluster}"
+                                group-name="${replication-master.cluster-name:mygroup}"
+                                check-for-live-server="${replication-master.check-for-live-server:false}">
+            </replication-master>
+        </ha-policy>
+    </hornetq-server>
 </subsystem>

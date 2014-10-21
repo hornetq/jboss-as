@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.as.messaging.jms.bridge.JMSBridgeDefinition;
 
 /**
@@ -40,11 +39,12 @@ public enum Attribute {
    // backup-connector-name is no longer used by HornetQ configuration
    @Deprecated
    BACKUP_CONNECTOR_NAME("backup-connector-name"),
-   CLUSTER_NAME(ScaleDownAttributes.CLUSTER_NAME),
+   CHECK_FOR_LIVE_SERVER(CommonAttributes.CHECK_FOR_LIVE_SERVER),
+   CLUSTER_NAME(CommonAttributes.CLUSTER_NAME),
    CONNECTOR_NAME(CommonAttributes.CONNECTOR_NAME),
    CONNECTOR_REF(CommonAttributes.CONNECTOR_REF_STRING),
-   ENABLED(ScaleDownAttributes.SCALE_DOWN),
-   GROUP_NAME(ScaleDownAttributes.GROUP_NAME),
+   ENABLED(CommonAttributes.ENABLED),
+   GROUP_NAME(CommonAttributes.GROUP_NAME),
    HTTP_LISTENER(CommonAttributes.HTTP_LISTENER),
    KEY(CommonAttributes.KEY),
    MATCH(CommonAttributes.MATCH),

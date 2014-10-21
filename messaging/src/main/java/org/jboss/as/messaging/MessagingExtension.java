@@ -209,6 +209,8 @@ public class MessagingExtension implements Extension {
         serverRegistration.registerSubModel(new ClusterConnectionDefinition(registerRuntimeOnly));
 
         // HA Policy
+        // only 1 ha-policy child is allowed among all of the registered models
+        // @see org.jboss.as.messaging.ha.ManagementHelper.checkNoOtherSibling() usage
         serverRegistration.registerSubModel(NoneDefinition.INSTANCE);
         serverRegistration.registerSubModel(ReplicationMasterDefinition.INSTANCE);
 

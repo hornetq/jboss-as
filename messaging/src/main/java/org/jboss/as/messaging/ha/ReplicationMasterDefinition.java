@@ -22,17 +22,24 @@
 
 package org.jboss.as.messaging.ha;
 
+import static org.jboss.as.controller.OperationContext.Stage.MODEL;
+import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.jboss.as.messaging.AlternativeAttributeCheckHandler.checkAlternatives;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.REPLICATION;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.CONNECTOR;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.DISCOVERY_GROUP_NAME;
+import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.core.config.HAPolicyConfiguration;
 import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -67,17 +74,33 @@ public class ReplicationMasterDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    private static Collection<AttributeDefinition> ATTRIBUTES = Collections.unmodifiableList(Arrays.asList(
+    public static SimpleAttributeDefinition CHECK_FOR_LIVE_SERVER = create(CommonAttributes.CHECK_FOR_LIVE_SERVER2, BOOLEAN)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultCheckForLiveServer()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static Collection<AttributeDefinition> ATTRIBUTES = Collections.unmodifiableList(Arrays.asList(
             (AttributeDefinition)CLUSTER_NAME,
-            GROUP_NAME
+            GROUP_NAME,
+            CHECK_FOR_LIVE_SERVER
     ));
+
+    private static final AbstractAddStepHandler ADD  = new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
+        @Override
+        public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+            super.execute(context, operation);
+            context.addStep(ManagementHelper.checkNoOtherSibling(HA_POLICY), MODEL);
+        }
+    };
 
     public static final ReplicationMasterDefinition INSTANCE = new ReplicationMasterDefinition();
 
     private ReplicationMasterDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY + "." + REPLICATION_MASTER),
-                new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES),
+                ADD,
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 
@@ -97,11 +120,13 @@ public class ReplicationMasterDefinition extends PersistentResourceDefinition {
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
         ReplicatedPolicyConfiguration haPolicyConfiguration = new ReplicatedPolicyConfiguration();
 
-        ModelNode clusterName = ReplicationMasterDefinition.CLUSTER_NAME.resolveModelAttribute(context, model);
+        haPolicyConfiguration.setCheckForLiveServer(CHECK_FOR_LIVE_SERVER.resolveModelAttribute(context, model).asBoolean());
+
+        ModelNode clusterName = CLUSTER_NAME.resolveModelAttribute(context, model);
         if (clusterName.isDefined()) {
             haPolicyConfiguration.setClusterName(clusterName.asString());
         }
-        ModelNode groupName = ReplicationMasterDefinition.GROUP_NAME.resolveModelAttribute(context, model);
+        ModelNode groupName = GROUP_NAME.resolveModelAttribute(context, model);
         if (groupName.isDefined()) {
             haPolicyConfiguration.setGroupName(groupName.asString());
         }

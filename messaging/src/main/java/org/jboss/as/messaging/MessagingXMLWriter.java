@@ -50,6 +50,7 @@ import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.ROLE;
 import static org.jboss.as.messaging.Element.NONE;
+import static org.jboss.as.messaging.Element.REPLICATION_MASTER;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
 import static org.jboss.as.messaging.Namespace.CURRENT;
@@ -64,6 +65,7 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
+import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
@@ -195,6 +197,9 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
             switch (type) {
                 case CommonAttributes.NONE:
                     writeHAPolicyNone(writer, prop.getValue());
+                    break;
+                case CommonAttributes.REPLICATION_MASTER:
+                    writeHAPolicyReplicationMaster(writer, prop.getValue());
             }
 
             writer.writeEndElement();
@@ -208,6 +213,16 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
 
         writer.writeEndElement();
 
+    }
+
+    private static void writeHAPolicyReplicationMaster(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(REPLICATION_MASTER.getLocalName());
+
+        for (AttributeDefinition attribute : ReplicationMasterDefinition.ATTRIBUTES) {
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writer.writeEndElement();
     }
 
     private static void writeScaleDown(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
