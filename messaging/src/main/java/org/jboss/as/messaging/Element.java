@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.messaging.ha.NoneDefinition;
-import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;
@@ -163,7 +161,7 @@ public enum Element {
    RESTART_BACKUP(HAPolicyDefinition.RESTART_BACKUP),
    ROUTING_NAME(DivertDefinition.ROUTING_NAME),
    RUN_SYNC_SPEED_TEST(CommonAttributes.RUN_SYNC_SPEED_TEST),
-   SCALE_DOWN(ScaleDownAttributes.SCALE_DOWN),
+   SCALE_DOWN(CommonAttributes.SCALE_DOWN),
    SCALE_DOWN_CLUSTERNAME(HAPolicyDefinition.SCALE_DOWN_CLUSTERNAME),
    SCALE_DOWN_CONNECTORS(CommonAttributes.SCALE_DOWN_CONNECTORS),
    SCALE_DOWN_DISCOVERY_GROUP(HAPolicyDefinition.SCALE_DOWN_DISCOVERY_GROUP),

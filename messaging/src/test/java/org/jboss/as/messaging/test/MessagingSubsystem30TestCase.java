@@ -79,13 +79,13 @@ import org.jboss.as.messaging.ConnectorServiceParamDefinition;
 import org.jboss.as.messaging.DiscoveryGroupDefinition;
 import org.jboss.as.messaging.DivertDefinition;
 import org.jboss.as.messaging.GroupingHandlerDefinition;
-import org.jboss.as.messaging.HAPolicyDefinition;
 import org.jboss.as.messaging.HTTPAcceptorDefinition;
 import org.jboss.as.messaging.HornetQServerResourceDefinition;
 import org.jboss.as.messaging.InVMTransportDefinition;
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.as.messaging.QueueDefinition;
 import org.jboss.as.messaging.TransportParamDefinition;
+import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
@@ -117,6 +117,16 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
     protected String getSubsystemXml() throws IOException {
         return readResource("subsystem_3_0_expressions.xml");
     }
+
+    /////////////////////////////////////////
+    //  Tests for HA Policy Configuration  //
+    /////////////////////////////////////////
+
+    @Test
+    public void testHAPolicyConfiguration() throws Exception {
+        standardSubsystemTest("subsystem_3_0_ha-policy.xml");
+    }
+
 
     ////////////////////////////////////////
     //      Tests for WidlFly versions    //
@@ -289,7 +299,7 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                         concat(new AttributeDefinition[]{CommonAttributes.BACKUP_GROUP_NAME, CommonAttributes.REPLICATION_CLUSTERNAME,
                                                 CommonAttributes.REMOTING_INCOMING_INTERCEPTORS, CommonAttributes.REMOTING_OUTGOING_INTERCEPTORS}, MAX_SAVED_REPLICATED_JOURNAL_SIZE, CHECK_FOR_LIVE_SERVER, OVERRIDE_IN_VM_SECURITY)))
                         .addFailedAttribute(
-                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, NoneDefinition.PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH, pathElement(ModelDescriptionConstants.PATH)),
@@ -444,7 +454,7 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                 createChainedConfig(new AttributeDefinition[]{},
                                         new AttributeDefinition[]{MAX_SAVED_REPLICATED_JOURNAL_SIZE, OVERRIDE_IN_VM_SECURITY}))
                         .addFailedAttribute(
-                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, NoneDefinition.PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH, BridgeDefinition.PATH),
@@ -508,7 +518,7 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                 createChainedConfig(new AttributeDefinition[]{},
                                         new AttributeDefinition[]{BridgeDefinition.RECONNECT_ATTEMPTS_ON_SAME_NODE}))
                         .addFailedAttribute(
-                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, NoneDefinition.PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH, pathElement(CommonAttributes.HTTP_CONNECTOR)),
@@ -567,7 +577,7 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                 createChainedConfig(new AttributeDefinition[]{},
                                         new AttributeDefinition[]{OVERRIDE_IN_VM_SECURITY}))
                         .addFailedAttribute(
-                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, NoneDefinition.PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(AddressSettingDefinition.PATH),

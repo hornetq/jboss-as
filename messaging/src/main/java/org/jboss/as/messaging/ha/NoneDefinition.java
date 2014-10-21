@@ -22,19 +22,33 @@
 
 package org.jboss.as.messaging.ha;
 
+import static org.jboss.as.controller.OperationContext.Stage.MODEL;
+import static org.jboss.as.messaging.AlternativeAttributeCheckHandler.checkAlternatives;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.NONE;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.CLUSTER_NAME;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.CONNECTOR;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.DISCOVERY_GROUP_NAME;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.GROUP_NAME;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.SCALE_DOWN;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.jboss.as.controller.AbstractAddStepHandler;
+import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
+import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.as.messaging.AlternativeAttributeCheckHandler;
+import org.jboss.as.messaging.HornetQReloadRequiredHandlers;
 import org.jboss.as.messaging.MessagingExtension;
+import org.jboss.dmr.ModelNode;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
@@ -44,21 +58,51 @@ public class NoneDefinition extends PersistentResourceDefinition {
     public static final PathElement PATH = PathElement.pathElement(HA_POLICY, NONE);
 
     private static Collection<AttributeDefinition> ATTRIBUTES = Collections.unmodifiableList(Arrays.asList(
-            ScaleDownAttributes.SCALE_DOWN
+            SCALE_DOWN,
+            CLUSTER_NAME,
+            GROUP_NAME,
+            DISCOVERY_GROUP_NAME,
+            CONNECTOR
     ));
+
+    private static final AbstractAddStepHandler ADD  = new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
+        @Override
+        protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+            checkAlternatives(operation, CONNECTOR.getName(), (DISCOVERY_GROUP_NAME.getName()), true);
+
+            super.populateModel(operation, model);
+        }
+    };
+
+    private static final AbstractWriteAttributeHandler WRITE_ATTRIBUTE = new HornetQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES) {
+        @Override
+        public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+            context.addStep(new AlternativeAttributeCheckHandler(ATTRIBUTES), MODEL);
+
+            super.execute(context, operation);
+        }
+    };
 
     public static final NoneDefinition INSTANCE = new NoneDefinition();
 
     private NoneDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY + "." + NONE),
-                new AbstractAddStepHandler(ATTRIBUTES),
+                ADD,
                 ReloadRequiredRemoveStepHandler.INSTANCE);
+    }
+
+    @Override
+    public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
+        for (AttributeDefinition attribute : ATTRIBUTES) {
+            resourceRegistration.registerReadWriteAttribute(attribute, null, WRITE_ATTRIBUTE);
+        }
     }
 
     @Override
     public Collection<AttributeDefinition> getAttributes() {
         return ATTRIBUTES;
     }
+
 
 }

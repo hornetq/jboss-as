@@ -39,7 +39,6 @@ import static org.jboss.as.messaging.CommonAttributes.CREATE_JOURNAL_DIR;
 import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.CommonAttributes.FAILOVER_ON_SHUTDOWN;
-import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
@@ -93,6 +92,7 @@ import static org.jboss.as.messaging.CommonAttributes.TRANSACTION_TIMEOUT_SCAN_P
 import static org.jboss.as.messaging.CommonAttributes.WILD_CARD_ROUTING_ENABLED;
 import static org.jboss.as.messaging.PathDefinition.PATHS;
 import static org.jboss.as.messaging.PathDefinition.RELATIVE_TO;
+import static org.jboss.as.messaging.ha.HAPolicyConfiguration.addHAPolicyConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -125,7 +125,6 @@ import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.controller.services.path.PathManagerService;
-import org.jboss.as.messaging.ha.HAPolicyConfiguration;
 import org.jboss.as.messaging.jms.JMSService;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.as.network.OutboundSocketBinding;
@@ -446,7 +445,8 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setWildcardRoutingEnabled(WILD_CARD_ROUTING_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
         processAddressSettings(context, configuration, model);
-        HAPolicyConfiguration.addHAPolicyConfig(context, configuration, model);
+        addHAPolicyConfiguration(context, configuration, model);
+
         processSecuritySettings(context, configuration, model);
         //process deprecated interceptors
         processRemotingInterceptors(context, configuration, model);

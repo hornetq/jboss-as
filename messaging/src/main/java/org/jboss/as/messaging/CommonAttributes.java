@@ -804,6 +804,7 @@ public interface CommonAttributes {
     String CLASS_NAME = "class-name";
     String CLUSTER_CONNECTION = "cluster-connection";
     String CLUSTER_CONNECTIONS = "cluster-connections";
+    String CLUSTER_NAME = "cluster-name";
     String CHECK_FOR_LIVE_SERVER2 = "check-for-live-server";
     String CONNECTION_FACTORY = "connection-factory";
     String CONNECTOR = "connector";
@@ -825,10 +826,12 @@ public interface CommonAttributes {
     String DIVERTS = "diverts";
     String DURABLE_MESSAGE_COUNT = "durable-message-count";
     String DURABLE_SUBSCRIPTION_COUNT = "durable-subscription-count";
+    String ENABLED = "enabled";
     String ENTRY = "entry";
     String FAILBACK_DELAY2 = "failback-delay";
     String FAILOVER_ON_SERVER_SHUTDOWN2 = "failover-on-shutdown";
     String FILE_DEPLOYMENT_ENABLED = "file-deployment-enabled";
+    String GROUP_NAME = "group-name";
     String GROUPING_HANDLER = "grouping-handler";
     String HA_POLICY = "ha-policy";
     String HOST = "host";
@@ -897,9 +900,7 @@ public interface CommonAttributes {
     String SERVLET_PATH = "servlet-path";
     String HORNETQ_SERVER = "hornetq-server";
     String REMOTE_CONNECTORS = "remote-connectors";
-    String SCALE_DOWN_CLUSTERNAME = "scale-down-clustername";
     String SCALE_DOWN_DISCOVERY_GROUP = "scale-down-discovery-group";
-    String SCALE_DOWN_GROUP_NAME = "scale-down-group-name";
     String STARTED = "started";
     String STATIC_CONNECTORS = "static-connectors";
     String STRING = "string";

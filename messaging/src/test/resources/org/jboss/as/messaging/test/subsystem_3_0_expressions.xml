@@ -75,7 +75,11 @@
         <large-messages-directory path="${my.largemessages.dir:test}" relative-to="test" />
         <ha-policy>
             <none>
-                <scale-down />
+                <scale-down enabled="${scale-down.enabled:true}"
+                            cluster-name="{scale-down.cluster-name:mycluster}"
+                            group-name="{scale-down.group-name:mygroup}">
+                    <discovery-group-ref discovery-group-name="groupC"/>
+                </scale-down>
             </none>
         </ha-policy>
         <!--

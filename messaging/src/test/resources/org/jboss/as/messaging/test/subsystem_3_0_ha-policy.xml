@@ -1,0 +1,27 @@
+
+<subsystem xmlns="urn:jboss:domain:messaging:3.0">
+    <hornetq-server name="ha-policy-none-scale-down-discovery-group">
+        <ha-policy>
+            <none>
+                <scale-down enabled="${scale-down.enabled:true}"
+                            cluster-name="{scale-down.cluster-name:mycluster}"
+                            group-name="{scale-down.group-name:mygroup}">
+                    <discovery-group-ref discovery-group-name="groupC"/>
+                </scale-down>
+            </none>
+        </ha-policy>
+    </hornetq-server>
+    <hornetq-server name="ha-policy-none-scale-down-connectors">
+        <ha-policy>
+            <none>
+                <scale-down enabled="${scale-down.enabled:true}"
+                            cluster-name="{scale-down.cluster-name:mycluster}"
+                            group-name="{scale-down.group-name:mygroup}">
+                    <connectors>
+                        <connector-ref connector-name="netty"/>
+                    </connectors>
+                </scale-down>
+            </none>
+        </ha-policy>
+    </hornetq-server>
+</subsystem>

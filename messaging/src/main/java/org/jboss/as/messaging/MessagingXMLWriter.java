@@ -34,7 +34,6 @@ import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.DIVERT;
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
 import static org.jboss.as.messaging.CommonAttributes.GROUPING_HANDLER;
-import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
@@ -50,7 +49,6 @@ import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.ROLE;
-import static org.jboss.as.messaging.CommonAttributes.TYPE_ATTR_NAME;
 import static org.jboss.as.messaging.Element.NONE;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
@@ -66,7 +64,6 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
-import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
@@ -207,15 +204,22 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
     private static void writeHAPolicyNone(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
         writer.writeStartElement(NONE.getLocalName());
 
-        NoneDefinition.INSTANCE.getAttributes();
-
-        if (node.hasDefined(ScaleDownAttributes.SCALE_DOWN.getName())) {
-            writer.writeStartElement(ScaleDownAttributes.SCALE_DOWN.getXmlName());
-            writer.writeEndElement();
-        }
+        writeScaleDown(writer, node);
 
         writer.writeEndElement();
 
+    }
+
+    private static void writeScaleDown(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(CommonAttributes.SCALE_DOWN);
+        ScaleDownAttributes.SCALE_DOWN.marshallAsAttribute(node, false, writer);
+        ScaleDownAttributes.CLUSTER_NAME.marshallAsAttribute(node, false, writer);
+        ScaleDownAttributes.GROUP_NAME.marshallAsAttribute(node, false, writer);
+
+        ScaleDownAttributes.DISCOVERY_GROUP_NAME.marshallAsElement(node, writer);
+        ScaleDownAttributes.CONNECTOR.marshallAsElement(node, writer);
+
+        writer.writeEndElement();
     }
 
     private static void writeConnectors(final XMLExtendedStreamWriter writer, final ModelNode node) throws XMLStreamException {

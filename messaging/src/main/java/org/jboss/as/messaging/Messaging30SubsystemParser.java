@@ -24,9 +24,12 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.operations.common.Util.getEmptyOperation;
+import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
+import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -123,8 +126,51 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
     }
 
     private void processScaleDown(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {
-        operation.get(ScaleDownAttributes.SCALE_DOWN.getName()).set(true);
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case ENABLED: {
+                    ScaleDownAttributes.SCALE_DOWN.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case GROUP_NAME: {
+                    ScaleDownAttributes.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case CLUSTER_NAME: {
+                    ScaleDownAttributes.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
 
-        ParseUtils.requireNoContent(reader);
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            Set<Element> seen = EnumSet.noneOf(Element.class);
+
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+            if (!seen.add(element)) {
+                throw ParseUtils.duplicateNamedElement(reader, element.getLocalName());
+            }
+
+            switch (element) {
+                case DISCOVERY_GROUP_REF: {
+                    checkOtherElementIsNotAlreadyDefined(reader, seen, Element.DISCOVERY_GROUP_REF, Element.CONNECTORS);
+                    final String attrValue = readStringAttributeElement(reader, ScaleDownAttributes.DISCOVERY_GROUP_NAME.getXmlName());
+                    ScaleDownAttributes.DISCOVERY_GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } case CONNECTORS: {
+                    checkOtherElementIsNotAlreadyDefined(reader, seen, Element.CONNECTORS, Element.DISCOVERY_GROUP_REF);
+                    operation.get(CONNECTOR).set(processJmsConnectors(reader));
+                    break;
+                }
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
     }
 }
