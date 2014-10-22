@@ -22,14 +22,21 @@
 
 package org.jboss.as.messaging.ha;
 
+import static org.jboss.as.controller.OperationContext.Stage.MODEL;
+import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
+
+import java.util.Collection;
 import java.util.Set;
 
+import org.jboss.as.controller.AbstractAddStepHandler;
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
+import org.jboss.as.messaging.HornetQReloadRequiredHandlers;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
 
@@ -37,6 +44,22 @@ import org.jboss.dmr.ModelNode;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
  */
 public class ManagementHelper {
+
+    /**
+     * Create an ADD operation that will check that there is no other sibling when the resource is added.
+     *
+     * @param attributes the attributes of the ADD operation
+     * @param childType the type of children to check for the existence of siblings
+     */
+    static AbstractAddStepHandler createAddOperationForSingleChild(final String childType, Collection<? extends AttributeDefinition> attributes) {
+        return new HornetQReloadRequiredHandlers.AddStepHandler(attributes) {
+            @Override
+            public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+                super.execute(context, operation);
+                context.addStep(checkNoOtherSibling(childType), MODEL);
+            }
+        };
+    }
 
     static OperationStepHandler checkNoOtherSibling(final String childType) {
         return new OperationStepHandler() {

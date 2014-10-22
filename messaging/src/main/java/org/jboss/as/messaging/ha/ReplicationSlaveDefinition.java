@@ -22,25 +22,19 @@
 
 package org.jboss.as.messaging.ha;
 
-import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
-import static org.jboss.as.messaging.ha.HAAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.jboss.as.messaging.ha.HAAttributes.CLUSTER_NAME;
 import static org.jboss.as.messaging.ha.HAAttributes.GROUP_NAME;
+import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperationForSingleChild;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.hornetq.core.config.HAPolicyConfiguration;
 import org.hornetq.core.config.ScaleDownConfiguration;
 import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
-import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
-import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -71,20 +65,12 @@ public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
         ATTRIBUTES = Collections.unmodifiableCollection(attributes);
     }
 
-    private static final AbstractAddStepHandler ADD  = new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
-        @Override
-        public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-            super.execute(context, operation);
-            context.addStep(ManagementHelper.checkNoOtherSibling(HA_POLICY), MODEL);
-        }
-    };
-
     public static final ReplicationSlaveDefinition INSTANCE = new ReplicationSlaveDefinition();
 
     private ReplicationSlaveDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY ),
-                ADD,
+                createAddOperationForSingleChild(HA_POLICY, ATTRIBUTES),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 
