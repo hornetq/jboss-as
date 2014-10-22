@@ -175,6 +175,7 @@ public enum Element {
    SERVER_DUMP_INTERVAL(CommonAttributes.SERVER_DUMP_INTERVAL),
    @Deprecated
    SHARED_STORE(CommonAttributes.SHARED_STORE),
+   SLAVE(CommonAttributes.SLAVE),
    STATISTICS_ENABLED(CommonAttributes.STATISTICS_ENABLED),
    SUBSYSTEM(CommonAttributes.SUBSYSTEM),
    TRANSACTION_TIMEOUT(CommonAttributes.TRANSACTION_TIMEOUT),

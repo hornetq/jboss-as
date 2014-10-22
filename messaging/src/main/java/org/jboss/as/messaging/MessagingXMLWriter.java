@@ -52,6 +52,7 @@ import static org.jboss.as.messaging.CommonAttributes.ROLE;
 import static org.jboss.as.messaging.Element.MASTER;
 import static org.jboss.as.messaging.Element.NONE;
 import static org.jboss.as.messaging.Element.REPLICATION;
+import static org.jboss.as.messaging.Element.SLAVE;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
 import static org.jboss.as.messaging.Namespace.CURRENT;
@@ -67,6 +68,7 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
 import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
+import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
@@ -201,6 +203,9 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                     break;
                 case CommonAttributes.REPLICATION_MASTER:
                     writeHAPolicyReplicationMaster(writer, prop.getValue());
+                    break;
+                case CommonAttributes.REPLICATION_SLAVE:
+                    writeHAPolicyReplicationSlave(writer, prop.getValue());
             }
 
             writer.writeEndElement();
@@ -223,6 +228,24 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         for (AttributeDefinition attribute : ReplicationMasterDefinition.ATTRIBUTES) {
             attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
         }
+
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicyReplicationSlave(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(REPLICATION.getLocalName());
+        writer.writeStartElement(SLAVE.getLocalName());
+
+        for (AttributeDefinition attribute : ReplicationSlaveDefinition.ATTRIBUTES) {
+            // skip scale-down attributes as they are written in the scale-down element
+            if (ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES.contains(attribute)) {
+                continue;
+            }
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writeScaleDown(writer, node);
 
         writer.writeEndElement();
         writer.writeEndElement();

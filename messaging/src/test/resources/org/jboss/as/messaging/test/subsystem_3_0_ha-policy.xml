@@ -33,4 +33,20 @@
             </replication>
         </ha-policy>
     </hornetq-server>
+    <hornetq-server name="ha-policy-replication-slave">
+        <ha-policy>
+            <replication>
+                <slave cluster-name="${replication-master.cluster-name:mycluster}"
+                        group-name="${replication-master.cluster-name:mygroup}">
+                    <scale-down enabled="${replication-slave-scale-down.enabled:true}"
+                                cluster-name="{replication-slave-scale-down.cluster-name:mycluster}"
+                                group-name="{replication-slave-scale-down.group-name:mygroup}">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                    </scale-down>
+                </slave>
+            </replication>
+        </ha-policy>
+    </hornetq-server>
 </subsystem>

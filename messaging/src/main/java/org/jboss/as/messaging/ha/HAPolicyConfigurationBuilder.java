@@ -25,6 +25,7 @@ package org.jboss.as.messaging.ha;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.HAPolicyConfiguration;
@@ -55,6 +56,10 @@ public class HAPolicyConfigurationBuilder {
             }
             case REPLICATION_MASTER: {
                 haPolicyConfiguration = ReplicationMasterDefinition.buildConfiguration(context, haPolicy);
+                break;
+            }
+            case REPLICATION_SLAVE: {
+                haPolicyConfiguration = ReplicationSlaveDefinition.buildConfiguration(context, haPolicy);
                 break;
             }
             default: {

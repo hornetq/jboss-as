@@ -23,17 +23,23 @@
 package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
-import static org.jboss.as.messaging.AlternativeAttributeCheckHandler.checkAlternatives;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.NONE;
-import static org.jboss.as.messaging.ha.ScaleDownAttributes.SCALE_DOWN_CONNECTORS;
-import static org.jboss.as.messaging.ha.ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
+import static org.jboss.as.messaging.ha.HAAttributes.CHECK_FOR_LIVE_SERVER;
+import static org.jboss.as.messaging.ha.HAAttributes.CLUSTER_NAME;
+import static org.jboss.as.messaging.ha.HAAttributes.GROUP_NAME;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.hornetq.core.config.HAPolicyConfiguration;
 import org.hornetq.core.config.ScaleDownConfiguration;
-import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
@@ -43,7 +49,6 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.jboss.as.messaging.AlternativeAttributeCheckHandler;
 import org.jboss.as.messaging.HornetQReloadRequiredHandlers;
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.dmr.ModelNode;
@@ -51,11 +56,20 @@ import org.jboss.dmr.ModelNode;
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
  */
-public class NoneDefinition extends PersistentResourceDefinition {
+public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, NONE);
+    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, REPLICATION_SLAVE);
 
-    private static Collection<AttributeDefinition> ATTRIBUTES = ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES;
+    public static Collection<AttributeDefinition> ATTRIBUTES;
+
+    static {
+        Collection<AttributeDefinition> attributes = new ArrayList<>();
+        attributes.add(CLUSTER_NAME);
+        attributes.add(GROUP_NAME);
+        attributes.addAll(ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES);
+
+        ATTRIBUTES = Collections.unmodifiableCollection(attributes);
+    }
 
     private static final AbstractAddStepHandler ADD  = new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
         @Override
@@ -63,37 +77,22 @@ public class NoneDefinition extends PersistentResourceDefinition {
             super.execute(context, operation);
             context.addStep(ManagementHelper.checkNoOtherSibling(HA_POLICY), MODEL);
         }
-
-        @Override
-        protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-            checkAlternatives(operation, SCALE_DOWN_CONNECTORS.getName(), SCALE_DOWN_DISCOVERY_GROUP_NAME.getName(), true);
-
-            super.populateModel(operation, model);
-        }
     };
 
-    private static final AbstractWriteAttributeHandler WRITE_ATTRIBUTE = new HornetQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES) {
-        @Override
-        public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-            context.addStep(new AlternativeAttributeCheckHandler(ATTRIBUTES), MODEL);
+    public static final ReplicationSlaveDefinition INSTANCE = new ReplicationSlaveDefinition();
 
-            super.execute(context, operation);
-        }
-    };
-
-    public static final NoneDefinition INSTANCE = new NoneDefinition();
-
-    private NoneDefinition() {
+    private ReplicationSlaveDefinition() {
         super(PATH,
-                MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
+                MessagingExtension.getResourceDescriptionResolver(HA_POLICY ),
                 ADD,
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
+        AbstractWriteAttributeHandler writeAttribute = new HornetQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES);
         for (AttributeDefinition attribute : ATTRIBUTES) {
-            resourceRegistration.registerReadWriteAttribute(attribute, null, WRITE_ATTRIBUTE);
+            resourceRegistration.registerReadWriteAttribute(attribute, null, writeAttribute);
         }
     }
 
@@ -103,7 +102,19 @@ public class NoneDefinition extends PersistentResourceDefinition {
     }
 
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
+        ReplicaPolicyConfiguration haPolicyConfiguration = new ReplicaPolicyConfiguration();
+
+        ModelNode clusterName = CLUSTER_NAME.resolveModelAttribute(context, model);
+        if (clusterName.isDefined()) {
+            haPolicyConfiguration.setClusterName(clusterName.asString());
+        }
+        ModelNode groupName = GROUP_NAME.resolveModelAttribute(context, model);
+        if (groupName.isDefined()) {
+            haPolicyConfiguration.setGroupName(groupName.asString());
+        }
         ScaleDownConfiguration scaleDownConfiguration = ScaleDownAttributes.addScaleDownConfiguration(context, model);
-        return new LiveOnlyPolicyConfiguration(scaleDownConfiguration);
+        haPolicyConfiguration.setScaleDownConfiguration(scaleDownConfiguration);
+
+        return haPolicyConfiguration;
     }
 }

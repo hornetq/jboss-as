@@ -902,6 +902,7 @@ public interface CommonAttributes {
     String SECURITY_SETTING = "security-setting";
     String SECURITY_SETTINGS = "security-settings";
     String SERVLET_PATH = "servlet-path";
+    String SLAVE = "slave";
     String HORNETQ_SERVER = "hornetq-server";
     String REMOTE_CONNECTORS = "remote-connectors";
     String SCALE_DOWN_DISCOVERY_GROUP = "scale-down-discovery-group";
@@ -935,4 +936,5 @@ public interface CommonAttributes {
 
     AttributeDefinition[] SIMPLE_ROOT_RESOURCE_WRITE_ATTRIBUTES = { FAILOVER_ON_SHUTDOWN, MESSAGE_COUNTER_ENABLED,
             MESSAGE_COUNTER_MAX_DAY_HISTORY, MESSAGE_COUNTER_SAMPLE_PERIOD };
+
 }

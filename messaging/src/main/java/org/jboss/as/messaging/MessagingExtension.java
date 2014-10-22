@@ -48,6 +48,7 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.services.path.ResolvePathHandler;
 import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
+import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -213,6 +214,7 @@ public class MessagingExtension implements Extension {
         // @see org.jboss.as.messaging.ha.ManagementHelper.checkNoOtherSibling() usage
         serverRegistration.registerSubModel(NoneDefinition.INSTANCE);
         serverRegistration.registerSubModel(ReplicationMasterDefinition.INSTANCE);
+        serverRegistration.registerSubModel(ReplicationSlaveDefinition.INSTANCE);
 
         // Grouping Handler
         serverRegistration.registerSubModel(new GroupingHandlerDefinition(registerRuntimeOnly));

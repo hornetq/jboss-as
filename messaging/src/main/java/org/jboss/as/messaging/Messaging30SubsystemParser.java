@@ -29,6 +29,7 @@ import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -141,6 +142,9 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case MASTER:
                     procesHaPolicyReplicationMaster(reader, address, list);
                     break;
+                case SLAVE:
+                    procesHaPolicyReplicationSlave(reader, address, list);
+                    break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);
             }
@@ -172,6 +176,43 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
         }
 
         requireNoContent(reader);
+
+        list.add(operation);
+    }
+
+    private void procesHaPolicyReplicationSlave(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address.clone().add(HA_POLICY, REPLICATION_SLAVE));
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case GROUP_NAME: {
+                    HAAttributes.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case CLUSTER_NAME: {
+                    HAAttributes.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case SCALE_DOWN:
+                    processScaleDown(reader, operation);
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
 
         list.add(operation);
     }

@@ -73,7 +73,7 @@ public class ReplicationMasterDefinition extends PersistentResourceDefinition {
 
     private ReplicationMasterDefinition() {
         super(PATH,
-                MessagingExtension.getResourceDescriptionResolver(HA_POLICY + "." + REPLICATION_MASTER),
+                MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
                 ADD,
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
