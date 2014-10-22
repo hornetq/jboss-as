@@ -28,8 +28,8 @@
         <ha-policy>
             <replication>
                 <master cluster-name="${replication-master.cluster-name:mycluster}"
-                                group-name="${replication-master.cluster-name:mygroup}"
-                                check-for-live-server="${replication-master.check-for-live-server:false}" />
+                        group-name="${replication-master.cluster-name:mygroup}"
+                        check-for-live-server="${replication-master.check-for-live-server:false}" />
             </replication>
         </ha-policy>
     </hornetq-server>
@@ -53,4 +53,38 @@
             </replication>
         </ha-policy>
     </hornetq-server>
-</subsystem>
+    <hornetq-server name="ha-policy-replication-colocated">
+        <ha-policy>
+            <replication>
+                <colocated request-backup="${replication-colocated.request-backup:false}"
+                           backup-request-retries="${replication-colocated.backup-request-retries:-1}"
+                           backup-request-retry-interval="${replication-colocated.backup-request-retry-interval:5098}"
+                           max-backups="${replication-colocated.max-backups:5}"
+                           backup-port-offset="${replication-colocated.backup-port-offset:500}">
+                    <!--
+             <excluded-connectors>
+                 <connector-ref connector-name="netty"/>
+             </excluded-connectors>
+
+             <master cluster-name="${replication-colocated-master.cluster-name:mycluster}"
+                     group-name="${replication-colocated-master.cluster-name:mygroup}"
+                     check-for-live-server="${replication-colocated-master.check-for-live-server:false}" />
+             <slave cluster-name="${replication-colocated-slave.cluster-name:mycluster}"
+                    group-name="${replication-colocated-slave.cluster-name:mygroup}"
+                    allow-failback="${replication-colocated-slave.allow-failback:true}"
+                    failback-delay="${replication-colocated-slave.failback-delay:53500}"
+                    restart-backup="${replication-colocated-slave.restart-backup:true}"
+                    max-saved-replicated-journal-size="${replication-colocated-slave.max-saved-replicated-journal-size:24}">
+                 <scale-down enabled="${replication-colocated-slave-scale-down.enabled:true}"
+                             cluster-name="{replication-colocated-slave-scale-down.cluster-name:mycluster}"
+                             group-name="{replication-colocated-slave-scale-down.group-name:mygroup}">
+                     <connectors>
+                         <connector-ref connector-name="netty"/>
+                     </connectors>
+                 </scale-down>
+             </slave>
+             -->
+                </colocated>
+            </replication>
+        </ha-policy>
+    </hornetq-server></subsystem>

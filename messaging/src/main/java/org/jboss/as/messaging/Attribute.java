@@ -41,6 +41,9 @@ public enum Attribute {
    // backup-connector-name is no longer used by HornetQ configuration
    @Deprecated
    BACKUP_CONNECTOR_NAME("backup-connector-name"),
+   BACKUP_PORT_OFFSET(HAAttributes.BACKUP_PORT_OFFSET),
+   BACKUP_REQUEST_RETRIES(HAAttributes.BACKUP_REQUEST_RETRIES),
+   BACKUP_REQUEST_RETRY_INTERVAL(HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL),
    CHECK_FOR_LIVE_SERVER(CommonAttributes.CHECK_FOR_LIVE_SERVER),
    CLUSTER_NAME(CommonAttributes.CLUSTER_NAME),
    CONNECTOR_NAME(CommonAttributes.CONNECTOR_NAME),
@@ -51,10 +54,12 @@ public enum Attribute {
    HTTP_LISTENER(CommonAttributes.HTTP_LISTENER),
    KEY(CommonAttributes.KEY),
    MATCH(CommonAttributes.MATCH),
+   MAX_BACKUPS(HAAttributes.MAX_BACKUPS),
    MAX_SAVED_REPLICATED_JOURNAL_SIZE(HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE),
    NAME(CommonAttributes.NAME),
    PATH(ModelDescriptionConstants.PATH),
    RELATIVE_TO(PathDefinition.RELATIVE_TO),
+   REQUEST_BACKUP(HAAttributes.REQUEST_BACKUP),
    RESTART_BACKUP(HAAttributes.RESTART_BACKUP),
    ROLES_ATTR_NAME(CommonAttributes.ROLES_ATTR_NAME),
    SERVER_ID(InVMTransportDefinition.SERVER_ID),

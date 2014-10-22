@@ -806,6 +806,7 @@ public interface CommonAttributes {
     String CLUSTER_CONNECTIONS = "cluster-connections";
     String CLUSTER_NAME = "cluster-name";
     String CHECK_FOR_LIVE_SERVER2 = "check-for-live-server";
+    String COLOCATED = "colocated";
     String CONNECTION_FACTORY = "connection-factory";
     String CONNECTOR = "connector";
     String CONNECTORS = "connectors";
@@ -890,6 +891,7 @@ public interface CommonAttributes {
     String REMOTING_OUTGOING_INTERCEPTOR = "remoting-outgoing-interceptor";
     String RESOURCE_ADAPTER = "resource-adapter";
     String REPLICATION = "replication";
+    String REPLICATION_COLOCATED = "replication-colocated";
     String REPLICATION_MASTER = "replication-master";
     String REPLICATION_SLAVE = "replication-slave";
     String RESOLVE_ADDRESS_SETTING = "resolve-address-setting";

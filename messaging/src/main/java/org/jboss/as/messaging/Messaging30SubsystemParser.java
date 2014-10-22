@@ -28,6 +28,7 @@ import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElem
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.NONE;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 
@@ -145,6 +146,9 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case SLAVE:
                     procesHaPolicyReplicationSlave(reader, address, list);
                     break;
+                case COLOCATED:
+                    procesHaPolicyReplicationColocation(reader, address, list);
+                    break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);
             }
@@ -229,6 +233,59 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                     throw ParseUtils.unexpectedElement(reader);
             }
         }
+
+        list.add(operation);
+    }
+
+    private void procesHaPolicyReplicationColocation(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address.clone().add(HA_POLICY, REPLICATION_COLOCATED));
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case REQUEST_BACKUP: {
+                    HAAttributes.REQUEST_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_PORT_OFFSET: {
+                    HAAttributes.BACKUP_PORT_OFFSET.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRIES: {
+                    HAAttributes.BACKUP_REQUEST_RETRIES.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRY_INTERVAL: {
+                    HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case MAX_BACKUPS: {
+                    HAAttributes.MAX_BACKUPS.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        /*
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case MASTER:
+                    processScaleDown(reader, operation);
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
+        */
+
+        requireNoContent(reader);
 
         list.add(operation);
     }

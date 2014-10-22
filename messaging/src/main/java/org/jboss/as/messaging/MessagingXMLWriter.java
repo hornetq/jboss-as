@@ -49,6 +49,7 @@ import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.ROLE;
+import static org.jboss.as.messaging.Element.COLOCATED;
 import static org.jboss.as.messaging.Element.MASTER;
 import static org.jboss.as.messaging.Element.NONE;
 import static org.jboss.as.messaging.Element.REPLICATION;
@@ -67,6 +68,7 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
+import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
 import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
@@ -206,6 +208,9 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                     break;
                 case CommonAttributes.REPLICATION_SLAVE:
                     writeHAPolicyReplicationSlave(writer, prop.getValue());
+                    break;
+                case CommonAttributes.REPLICATION_COLOCATED:
+                    writeHAPolicyReplicationColocated(writer, prop.getValue());
             }
 
             writer.writeEndElement();
@@ -246,6 +251,18 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         }
 
         writeScaleDown(writer, node);
+
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicyReplicationColocated(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(REPLICATION.getLocalName());
+        writer.writeStartElement(COLOCATED.getLocalName());
+
+        for (AttributeDefinition attribute : ReplicationColocatedDefinition.ATTRIBUTES) {
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
 
         writer.writeEndElement();
         writer.writeEndElement();

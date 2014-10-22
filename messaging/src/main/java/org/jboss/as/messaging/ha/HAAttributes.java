@@ -23,6 +23,7 @@
 package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
@@ -32,6 +33,7 @@ import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
+import org.jboss.as.controller.client.helpers.MeasurementUnit;
 import org.jboss.as.messaging.CommonAttributes;
 import org.jboss.as.messaging.HAPolicyDefinition;
 import org.jboss.dmr.ModelNode;
@@ -45,6 +47,29 @@ public class HAAttributes {
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultAllowAutoFailback()))
             .setAllowNull(true)
             .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition BACKUP_PORT_OFFSET = create("backup-port-offset", INT)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupPortOffset()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition BACKUP_REQUEST_RETRIES = create("backup-request-retries", INT)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetries()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition BACKUP_REQUEST_RETRY_INTERVAL = create("backup-request-retry-interval", LONG)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetryInterval()))
+            .setMeasurementUnit(MILLISECONDS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
             .build();
 
     public static SimpleAttributeDefinition CHECK_FOR_LIVE_SERVER = create(CommonAttributes.CHECK_FOR_LIVE_SERVER2, BOOLEAN)
@@ -62,11 +87,20 @@ public class HAAttributes {
 
     public static final SimpleAttributeDefinition FAILBACK_DELAY = create("failback-delay", LONG)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
+            .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
+            .setRestartAllServices()
             .build();
 
     public static SimpleAttributeDefinition GROUP_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.GROUP_NAME, STRING)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition MAX_BACKUPS = create("max-backups", INT)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyMaxBackups()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
@@ -76,11 +110,20 @@ public class HAAttributes {
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize()))
             .setAllowNull(true)
             .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition REQUEST_BACKUP = create("request-backup", BOOLEAN)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultHapolicyRequestBackup()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition RESTART_BACKUP = create("restart-backup", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultRestartBackup()))
             .setAllowNull(true)
             .setAllowExpression(true)
+            .setRestartAllServices()
             .build();
 }
