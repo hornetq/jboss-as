@@ -23,7 +23,6 @@
 package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
-import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 
 import java.util.Collection;
 import java.util.Set;

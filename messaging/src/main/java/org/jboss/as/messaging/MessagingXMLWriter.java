@@ -50,6 +50,7 @@ import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.ROLE;
 import static org.jboss.as.messaging.Element.COLOCATED;
+import static org.jboss.as.messaging.Element.EXCLUDES;
 import static org.jboss.as.messaging.Element.MASTER;
 import static org.jboss.as.messaging.Element.NONE;
 import static org.jboss.as.messaging.Element.REPLICATION;
@@ -68,6 +69,7 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
+import org.jboss.as.messaging.ha.HAAttributes;
 import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
 import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
@@ -261,7 +263,16 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         writer.writeStartElement(COLOCATED.getLocalName());
 
         for (AttributeDefinition attribute : ReplicationColocatedDefinition.ATTRIBUTES) {
+            if (attribute == HAAttributes.EXCLUDED_CONNECTORS) {
+                continue;
+            }
             attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        if (node.hasDefined(HAAttributes.EXCLUDED_CONNECTORS.getName())) {
+            writer.writeStartElement(EXCLUDES.getLocalName());
+            HAAttributes.EXCLUDED_CONNECTORS.marshallAsElement(node, writer);
+            writer.writeEndElement();
         }
 
         writer.writeEndElement();

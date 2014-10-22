@@ -27,13 +27,16 @@ import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_PORT_OFFSET;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRIES;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL;
+import static org.jboss.as.messaging.ha.HAAttributes.EXCLUDED_CONNECTORS;
 import static org.jboss.as.messaging.ha.HAAttributes.MAX_BACKUPS;
 import static org.jboss.as.messaging.ha.HAAttributes.REQUEST_BACKUP;
 import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperationForSingleChild;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.hornetq.core.config.HAPolicyConfiguration;
 import org.hornetq.core.config.ha.ColocatedPolicyConfiguration;
@@ -57,11 +60,12 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
     public static final PathElement PATH = PathElement.pathElement(HA_POLICY, REPLICATION_COLOCATED);
 
     public static Collection<AttributeDefinition> ATTRIBUTES =  Collections.unmodifiableList(Arrays.asList(
-            (AttributeDefinition)REQUEST_BACKUP,
+            REQUEST_BACKUP,
             BACKUP_REQUEST_RETRIES,
             BACKUP_REQUEST_RETRY_INTERVAL,
             MAX_BACKUPS,
-            BACKUP_PORT_OFFSET
+            BACKUP_PORT_OFFSET,
+            EXCLUDED_CONNECTORS
     ));
 
     public static final ReplicationColocatedDefinition INSTANCE = new ReplicationColocatedDefinition();
@@ -93,6 +97,12 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
                 .setBackupRequestRetryInterval(BACKUP_REQUEST_RETRY_INTERVAL.resolveModelAttribute(context, model).asLong())
                 .setMaxBackups(MAX_BACKUPS.resolveModelAttribute(context, model).asInt())
                 .setBackupPortOffset(BACKUP_PORT_OFFSET.resolveModelAttribute(context, model).asInt());
+
+        ModelNode connectors = EXCLUDED_CONNECTORS.resolveModelAttribute(context, model);
+        if (connectors.isDefined()) {
+            List<String> connectorNames = new ArrayList<>(connectors.keys());
+            haPolicyConfiguration.setRemoteConnectors(connectorNames);
+        }
 
         return haPolicyConfiguration;
     }

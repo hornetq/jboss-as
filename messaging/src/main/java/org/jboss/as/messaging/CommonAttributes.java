@@ -829,6 +829,7 @@ public interface CommonAttributes {
     String DURABLE_SUBSCRIPTION_COUNT = "durable-subscription-count";
     String ENABLED = "enabled";
     String ENTRY = "entry";
+    String EXCLUDES = "excludes";
     String FAILBACK_DELAY2 = "failback-delay";
     String FAILOVER_ON_SERVER_SHUTDOWN2 = "failover-on-shutdown";
     String FILE_DEPLOYMENT_ENABLED = "file-deployment-enabled";

@@ -83,6 +83,7 @@ public enum Element {
    DIVERT(CommonAttributes.DIVERT),
    DIVERTS(CommonAttributes.DIVERTS),
    DURABLE(CommonAttributes.DURABLE),
+   EXCLUDES(CommonAttributes.EXCLUDES),
    EXCLUSIVE(DivertDefinition.EXCLUSIVE),
    FAILBACK_DELAY(CommonAttributes.FAILBACK_DELAY),
    FAILOVER_ON_SHUTDOWN(CommonAttributes.FAILOVER_ON_SHUTDOWN),

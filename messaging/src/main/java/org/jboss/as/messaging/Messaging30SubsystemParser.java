@@ -270,24 +270,35 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             }
         }
 
-        /*
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String localName = reader.getLocalName();
             final Element element = Element.forName(localName);
 
             switch (element) {
-                case MASTER:
-                    processScaleDown(reader, operation);
+                case EXCLUDES:
+                    processExcludedConnectors(reader, operation);
                     break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);
             }
         }
-        */
-
-        requireNoContent(reader);
 
         list.add(operation);
+    }
+
+    private void processExcludedConnectors(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case CONNECTORS:
+                    operation.get(HAAttributes.EXCLUDED_CONNECTORS.getName()).set(processJmsConnectors(reader));
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
     }
 
     private void processScaleDown(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {
