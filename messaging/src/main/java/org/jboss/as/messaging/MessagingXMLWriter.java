@@ -49,8 +49,9 @@ import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.ROLE;
+import static org.jboss.as.messaging.Element.MASTER;
 import static org.jboss.as.messaging.Element.NONE;
-import static org.jboss.as.messaging.Element.REPLICATION_MASTER;
+import static org.jboss.as.messaging.Element.REPLICATION;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
 import static org.jboss.as.messaging.Namespace.CURRENT;
@@ -216,12 +217,14 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
     }
 
     private static void writeHAPolicyReplicationMaster(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
-        writer.writeStartElement(REPLICATION_MASTER.getLocalName());
+        writer.writeStartElement(REPLICATION.getLocalName());
+        writer.writeStartElement(MASTER.getLocalName());
 
         for (AttributeDefinition attribute : ReplicationMasterDefinition.ATTRIBUTES) {
             attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
         }
 
+        writer.writeEndElement();
         writer.writeEndElement();
     }
 

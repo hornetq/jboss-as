@@ -103,8 +103,8 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case NONE:
                     procesHaPolicyNone(reader, address, list);
                     break;
-                case REPLICATION_MASTER:
-                    procesHaPolicyReplicationMaster(reader, address, list);
+                case REPLICATION:
+                    procesHaPolicyReplication(reader, address, list);
                     break;
                 default:
                 throw ParseUtils.unexpectedElement(reader);
@@ -130,6 +130,21 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
 
         list.add(haPolicyAdd);
 
+    }
+
+    private void procesHaPolicyReplication(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case MASTER:
+                    procesHaPolicyReplicationMaster(reader, address, list);
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
     }
 
     private void procesHaPolicyReplicationMaster(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {

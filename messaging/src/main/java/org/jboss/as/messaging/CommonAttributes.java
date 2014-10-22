@@ -857,6 +857,7 @@ public interface CommonAttributes {
     String LOCAL = "local";
     String LOCAL_TX = "LocalTransaction";
     String MANAGE_XML_NAME = "manage";
+    String MASTER = "master";
     String MATCH = "match";
     String MAX_BACKUPS = "max-backups";
     String MAX_SAVED_REPLICATED_JOURNAL_SIZE2 = "max-saved-replicated-journals-size";
