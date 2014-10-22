@@ -24,32 +24,63 @@ package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.BOOLEAN;
+import static org.jboss.dmr.ModelType.INT;
+import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
 import org.hornetq.api.config.HornetQDefaultConfiguration;
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.messaging.CommonAttributes;
+import org.jboss.as.messaging.HAPolicyDefinition;
 import org.jboss.dmr.ModelNode;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
  */
 public class HAAttributes {
-    public static SimpleAttributeDefinition CLUSTER_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.CLUSTER_NAME, STRING)
+
+    public static final SimpleAttributeDefinition ALLOW_FAILBACK = create("allow-failback", BOOLEAN)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultAllowAutoFailback()))
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setRestartAllServices()
             .build();
-    public static SimpleAttributeDefinition GROUP_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.GROUP_NAME, STRING)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
+
     public static SimpleAttributeDefinition CHECK_FOR_LIVE_SERVER = create(CommonAttributes.CHECK_FOR_LIVE_SERVER2, BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultCheckForLiveServer()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
+            .build();
+
+    public static SimpleAttributeDefinition CLUSTER_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.CLUSTER_NAME, STRING)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition FAILBACK_DELAY = create("failback-delay", LONG)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .build();
+
+    public static SimpleAttributeDefinition GROUP_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.GROUP_NAME, STRING)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition MAX_SAVED_REPLICATED_JOURNAL_SIZE = create("max-saved-replicated-journal-size", INT)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .build();
+
+    public static final SimpleAttributeDefinition RESTART_BACKUP = create("restart-backup", BOOLEAN)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultRestartBackup()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
             .build();
 }

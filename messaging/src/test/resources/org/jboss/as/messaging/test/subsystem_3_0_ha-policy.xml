@@ -36,8 +36,12 @@
     <hornetq-server name="ha-policy-replication-slave">
         <ha-policy>
             <replication>
-                <slave cluster-name="${replication-master.cluster-name:mycluster}"
-                        group-name="${replication-master.cluster-name:mygroup}">
+                <slave cluster-name="${replication-slave.cluster-name:mycluster}"
+                        group-name="${replication-slave.cluster-name:mygroup}"
+                        allow-failback="${replication-slave.allow-failback:true}"
+                        failback-delay="${replication-slave.failback-delay:53500}"
+                        restart-backup="${replication-slave.restart-backup:true}"
+                        max-saved-replicated-journal-size="${replication-slave.max-saved-replicated-journal-size:24}">
                     <scale-down enabled="${replication-slave-scale-down.enabled:true}"
                                 cluster-name="{replication-slave-scale-down.cluster-name:mycluster}"
                                 group-name="{replication-slave-scale-down.group-name:mygroup}">

@@ -195,6 +195,22 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case CLUSTER_NAME: {
                     HAAttributes.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
                     break;
+                }
+                case ALLOW_FAILBACK: {
+                    HAAttributes.ALLOW_FAILBACK.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case RESTART_BACKUP: {
+                    HAAttributes.RESTART_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILBACK_DELAY: {
+                    HAAttributes.FAILBACK_DELAY.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case MAX_SAVED_REPLICATED_JOURNAL_SIZE: {
+                    HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE.parseAndSetParameter(attrValue, operation, reader);
+                    break;
                 } default: {
                     throw ParseUtils.unexpectedAttribute(reader, i);
                 }

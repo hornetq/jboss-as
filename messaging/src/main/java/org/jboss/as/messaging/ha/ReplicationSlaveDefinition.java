@@ -24,16 +24,20 @@ package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
+import static org.jboss.as.messaging.ha.HAAttributes.ALLOW_FAILBACK;
 import static org.jboss.as.messaging.ha.HAAttributes.CLUSTER_NAME;
+import static org.jboss.as.messaging.ha.HAAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.ha.HAAttributes.GROUP_NAME;
+import static org.jboss.as.messaging.ha.HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE;
+import static org.jboss.as.messaging.ha.HAAttributes.RESTART_BACKUP;
 import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperationForSingleChild;
+import static org.jboss.as.messaging.ha.ScaleDownAttributes.addScaleDownConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.hornetq.core.config.HAPolicyConfiguration;
-import org.hornetq.core.config.ScaleDownConfiguration;
 import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
@@ -60,6 +64,11 @@ public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
         Collection<AttributeDefinition> attributes = new ArrayList<>();
         attributes.add(CLUSTER_NAME);
         attributes.add(GROUP_NAME);
+        attributes.add(ALLOW_FAILBACK);
+        attributes.add(FAILBACK_DELAY);
+        attributes.add(MAX_SAVED_REPLICATED_JOURNAL_SIZE);
+        attributes.add(RESTART_BACKUP);
+
         attributes.addAll(ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES);
 
         ATTRIBUTES = Collections.unmodifiableCollection(attributes);
@@ -88,7 +97,12 @@ public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
     }
 
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
-        ReplicaPolicyConfiguration haPolicyConfiguration = new ReplicaPolicyConfiguration();
+        ReplicaPolicyConfiguration haPolicyConfiguration = new ReplicaPolicyConfiguration()
+                .setAllowFailBack(ALLOW_FAILBACK.resolveModelAttribute(context, model).asBoolean())
+                .setFailbackDelay(FAILBACK_DELAY.resolveModelAttribute(context, model).asLong())
+                .setMaxSavedReplicatedJournalsSize(MAX_SAVED_REPLICATED_JOURNAL_SIZE.resolveModelAttribute(context, model).asInt())
+                .setScaleDownConfiguration(addScaleDownConfiguration(context, model))
+                .setRestartBackup(RESTART_BACKUP.resolveModelAttribute(context, model).asBoolean());
 
         ModelNode clusterName = CLUSTER_NAME.resolveModelAttribute(context, model);
         if (clusterName.isDefined()) {
@@ -98,8 +112,6 @@ public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
         if (groupName.isDefined()) {
             haPolicyConfiguration.setGroupName(groupName.asString());
         }
-        ScaleDownConfiguration scaleDownConfiguration = ScaleDownAttributes.addScaleDownConfiguration(context, model);
-        haPolicyConfiguration.setScaleDownConfiguration(scaleDownConfiguration);
 
         return haPolicyConfiguration;
     }
