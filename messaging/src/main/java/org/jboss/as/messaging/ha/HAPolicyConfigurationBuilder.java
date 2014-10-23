@@ -27,6 +27,7 @@ import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
 
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.HAPolicyConfiguration;
@@ -65,6 +66,10 @@ public class HAPolicyConfigurationBuilder {
             }
             case REPLICATION_COLOCATED: {
                 haPolicyConfiguration = ReplicationColocatedDefinition.buildConfiguration(context, haPolicy);
+                break;
+            }
+            case SHARED_STORE_MASTER: {
+                haPolicyConfiguration = SharedStoreMasterDefinition.buildConfiguration(context, haPolicy);
                 break;
             }
             default: {

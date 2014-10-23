@@ -89,4 +89,11 @@
             </replication>
         </ha-policy>
     </hornetq-server>
-</subsystem>
+    <hornetq-server name="ha-policy-shared-store-master">
+        <ha-policy>
+            <shared-store>
+                <master failback-delay="${shared-store-master.failback-delay:567}"
+                        failover-on-server-shutdown="${failover-on-server-shutdown:true}" />
+            </shared-store>
+        </ha-policy>
+    </hornetq-server></subsystem>

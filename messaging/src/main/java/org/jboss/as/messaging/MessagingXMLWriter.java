@@ -27,7 +27,6 @@ import static org.jboss.as.messaging.ClusterConnectionDefinition.CONNECTOR_REFS;
 import static org.jboss.as.messaging.CommonAttributes.ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.ADDRESS_SETTING;
 import static org.jboss.as.messaging.CommonAttributes.BROADCAST_GROUP;
-import static org.jboss.as.messaging.CommonAttributes.CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
@@ -35,6 +34,7 @@ import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.DIVERT;
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
 import static org.jboss.as.messaging.CommonAttributes.GROUPING_HANDLER;
+import static org.jboss.as.messaging.CommonAttributes.HA_CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
@@ -55,6 +55,7 @@ import static org.jboss.as.messaging.Element.EXCLUDES;
 import static org.jboss.as.messaging.Element.MASTER;
 import static org.jboss.as.messaging.Element.NONE;
 import static org.jboss.as.messaging.Element.REPLICATION;
+import static org.jboss.as.messaging.Element.SHARED_STORE;
 import static org.jboss.as.messaging.Element.SLAVE;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
@@ -75,6 +76,7 @@ import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
 import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
+import org.jboss.as.messaging.ha.SharedStoreMasterDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
@@ -220,10 +222,25 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                     writer.writeStartElement(REPLICATION.getLocalName());
                     writeHAPolicyReplicationColocated(writer, prop.getValue());
                     writer.writeEndElement();
+                    break;
+                case CommonAttributes.SHARED_STORE_MASTER:
+                    writer.writeStartElement(SHARED_STORE.getLocalName());
+                    writeHAPolicySharedStoreMaster(writer, prop.getValue());
+                    writer.writeEndElement();
             }
 
             writer.writeEndElement();
         }
+    }
+
+    private static void writeHAPolicySharedStoreMaster(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(MASTER.getLocalName());
+
+        for (AttributeDefinition attribute : SharedStoreMasterDefinition.ATTRIBUTES) {
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writer.writeEndElement();
     }
 
     private static void writeHAPolicyNone(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
@@ -276,11 +293,11 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
             writer.writeEndElement();
         }
 
-        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.MASTER)) {
-            writeHAPolicyReplicationMaster(writer, node.get(CONFIGURATION, CommonAttributes.MASTER));
+        if (node.get(HA_CONFIGURATION).hasDefined(CommonAttributes.MASTER)) {
+            writeHAPolicyReplicationMaster(writer, node.get(HA_CONFIGURATION, CommonAttributes.MASTER));
         }
-        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.SLAVE)) {
-            writeHAPolicyReplicationSlave(writer, node.get(CONFIGURATION, CommonAttributes.SLAVE));
+        if (node.get(HA_CONFIGURATION).hasDefined(CommonAttributes.SLAVE)) {
+            writeHAPolicyReplicationSlave(writer, node.get(HA_CONFIGURATION, CommonAttributes.SLAVE));
         }
 
         writer.writeEndElement();

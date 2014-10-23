@@ -53,6 +53,7 @@ import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
 import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
+import org.jboss.as.messaging.ha.SharedStoreMasterDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -220,6 +221,7 @@ public class MessagingExtension implements Extension {
         serverRegistration.registerSubModel(new ReplicationMasterDefinition(pathElement(HA_POLICY, REPLICATION_MASTER), false));
         serverRegistration.registerSubModel(new ReplicationSlaveDefinition(pathElement(HA_POLICY, REPLICATION_SLAVE), false));
         serverRegistration.registerSubModel(ReplicationColocatedDefinition.INSTANCE);
+        serverRegistration.registerSubModel(SharedStoreMasterDefinition.INSTANCE);
 
         // Grouping Handler
         serverRegistration.registerSubModel(new GroupingHandlerDefinition(registerRuntimeOnly));

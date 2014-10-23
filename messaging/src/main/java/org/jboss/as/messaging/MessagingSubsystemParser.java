@@ -306,8 +306,12 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                         throw unexpectedEndElement(reader);
                     }
                     break;
-                case CLUSTERED:
                 case SHARED_STORE:
+                    MessagingLogger.ROOT_LOGGER.deprecatedXMLElement(element.toString());
+                    String value = reader.getElementText();
+                    CommonAttributes.SHARED_STORE.parseAndSetParameter(value, operation, reader);
+                    break;
+                case CLUSTERED:
                 case ALLOW_FAILBACK:
                     // log that the attribute is deprecated but handle it anyway
                     MessagingLogger.ROOT_LOGGER.deprecatedXMLElement(element.toString());

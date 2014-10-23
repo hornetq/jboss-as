@@ -22,7 +22,7 @@
 
 package org.jboss.as.messaging.ha;
 
-import static org.jboss.as.messaging.CommonAttributes.CONFIGURATION;
+import static org.jboss.as.messaging.CommonAttributes.HA_CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
@@ -96,8 +96,8 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
     @Override
     protected List<? extends PersistentResourceDefinition> getChildren() {
         return Collections.unmodifiableList(Arrays.asList(
-                new ReplicationMasterDefinition(PathElement.pathElement(CONFIGURATION, MASTER), true),
-                new ReplicationSlaveDefinition(PathElement.pathElement(CONFIGURATION, SLAVE), true)
+                new ReplicationMasterDefinition(PathElement.pathElement(HA_CONFIGURATION, MASTER), true),
+                new ReplicationSlaveDefinition(PathElement.pathElement(HA_CONFIGURATION, SLAVE), true)
         ));
     }
 
@@ -115,13 +115,13 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
             haPolicyConfiguration.setRemoteConnectors(connectorNames);
         }
 
-        ModelNode masterConfigurationModel = model.get(CONFIGURATION, MASTER);
+        ModelNode masterConfigurationModel = model.get(HA_CONFIGURATION, MASTER);
         if (masterConfigurationModel.isDefined()) {
             HAPolicyConfiguration masterConfiguration = ReplicationMasterDefinition.buildConfiguration(context, masterConfigurationModel);
             haPolicyConfiguration.setLiveConfig(masterConfiguration);
         }
 
-        ModelNode slaveConfigurationModel = model.get(CONFIGURATION, SLAVE);
+        ModelNode slaveConfigurationModel = model.get(HA_CONFIGURATION, SLAVE);
         if (slaveConfigurationModel.isDefined()) {
             HAPolicyConfiguration slaveConfiguration = ReplicationSlaveDefinition.buildConfiguration(context, slaveConfigurationModel);
             haPolicyConfiguration.setBackupConfig(slaveConfiguration);

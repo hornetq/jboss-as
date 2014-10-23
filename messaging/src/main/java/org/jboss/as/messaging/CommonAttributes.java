@@ -836,6 +836,7 @@ public interface CommonAttributes {
     String FILE_DEPLOYMENT_ENABLED = "file-deployment-enabled";
     String GROUP_NAME = "group-name";
     String GROUPING_HANDLER = "grouping-handler";
+    String HA_CONFIGURATION = "ha-configuration";
     String HA_POLICY = "ha-policy";
     String HOST = "host";
     String HTTP = "http";
@@ -906,10 +907,12 @@ public interface CommonAttributes {
     String SECURITY_SETTING = "security-setting";
     String SECURITY_SETTINGS = "security-settings";
     String SERVLET_PATH = "servlet-path";
+    String SHARED_STORE_MASTER = "shared-store-master";
     String SLAVE = "slave";
     String HORNETQ_SERVER = "hornetq-server";
     String REMOTE_CONNECTORS = "remote-connectors";
     String SCALE_DOWN_DISCOVERY_GROUP = "scale-down-discovery-group";
+    String SHARED_STORE_STR = "shared-store";
     String STARTED = "started";
     String STATIC_CONNECTORS = "static-connectors";
     String STRING = "string";
@@ -940,5 +943,4 @@ public interface CommonAttributes {
 
     AttributeDefinition[] SIMPLE_ROOT_RESOURCE_WRITE_ATTRIBUTES = { FAILOVER_ON_SHUTDOWN, MESSAGE_COUNTER_ENABLED,
             MESSAGE_COUNTER_MAX_DAY_HISTORY, MESSAGE_COUNTER_SAMPLE_PERIOD };
-
 }

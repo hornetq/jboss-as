@@ -127,6 +127,13 @@ public class HAAttributes {
             .setRestartAllServices()
             .build();
 
+    public static final SimpleAttributeDefinition FAILOVER_ON_SERVER_SHUTDOWN = create("failover-on-server-shutdown", ModelType.BOOLEAN)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultFailoverOnServerShutdown()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
     public static SimpleAttributeDefinition GROUP_NAME = SimpleAttributeDefinitionBuilder.create(CommonAttributes.GROUP_NAME, STRING)
             .setAllowNull(true)
             .setAllowExpression(true)

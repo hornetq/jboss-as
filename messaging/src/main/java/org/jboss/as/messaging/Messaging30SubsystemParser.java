@@ -26,13 +26,14 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD
 import static org.jboss.as.controller.operations.common.Util.getEmptyOperation;
 import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
-import static org.jboss.as.messaging.CommonAttributes.CONFIGURATION;
+import static org.jboss.as.messaging.CommonAttributes.HA_CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.MASTER;
 import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.SLAVE;
 
 import java.util.EnumSet;
@@ -111,10 +112,55 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case REPLICATION:
                     procesHaPolicyReplication(reader, address, list);
                     break;
+                case SHARED_STORE:
+                    processHAPolicySharedStore(reader, address, list);
+                    break;
                 default:
                 throw ParseUtils.unexpectedElement(reader);
             }
         }
+    }
+
+    private void processHAPolicySharedStore(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case MASTER:
+                    processHAPolicySharedStoreMaster(reader, address.clone().add(HA_POLICY, SHARED_STORE_MASTER), list);
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void processHAPolicySharedStoreMaster(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case FAILBACK_DELAY: {
+                    HAAttributes.FAILBACK_DELAY.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILOVER_ON_SERVER_SHUTDOWN: {
+                    HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        requireNoContent(reader);
+
+        list.add(operation);
     }
 
     private void procesHaPolicyNone(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
@@ -284,10 +330,10 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                     processExcludedConnectors(reader, operation);
                     break;
                 case MASTER:
-                    procesHaPolicyReplicationMaster(reader, address.clone().add(CONFIGURATION, MASTER), list);
+                    procesHaPolicyReplicationMaster(reader, address.clone().add(HA_CONFIGURATION, MASTER), list);
                     break;
                 case SLAVE:
-                    procesHaPolicyReplicationSlave(reader, address.clone().add(CONFIGURATION, SLAVE), list);
+                    procesHaPolicyReplicationSlave(reader, address.clone().add(HA_CONFIGURATION, SLAVE), list);
                     break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);

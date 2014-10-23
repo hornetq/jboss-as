@@ -72,6 +72,7 @@ import org.jboss.as.controller.transform.description.ResourceTransformationDescr
 import org.jboss.as.controller.transform.description.TransformationDescriptionBuilder;
 import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
+import org.jboss.as.messaging.ha.SharedStoreMasterDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -121,6 +122,7 @@ public class MessagingTransformers {
     private static void buildTransformers2_1_0(ResourceTransformationDescriptionBuilder builder) {
         ResourceTransformationDescriptionBuilder hornetqServer = builder.addChildResource(pathElement(HORNETQ_SERVER));
         rejectDefinedAttributeWithDefaultValue(hornetqServer, OVERRIDE_IN_VM_SECURITY, JOURNAL_LOCK_ACQUISITION_TIMEOUT);
+        // FIXME shared-store is deprecated, no need to convert its value
         // shared-store attribute has changed its default value to false in HornetQ 2.5.0
         hornetqServer.getAttributeBuilder().setValueConverter(new AttributeConverter() {
             @Override
@@ -141,6 +143,7 @@ public class MessagingTransformers {
         hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_MASTER));
         hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_SLAVE));
         hornetqServer.rejectChildResource(ReplicationColocatedDefinition.PATH);
+        hornetqServer.rejectChildResource(SharedStoreMasterDefinition.PATH);
 
         ResourceTransformationDescriptionBuilder addressSetting = hornetqServer.addChildResource(AddressSettingDefinition.PATH);
         rejectDefinedAttributeWithDefaultValue(addressSetting, MAX_REDELIVERY_DELAY, REDELIVERY_MULTIPLIER);

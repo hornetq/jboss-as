@@ -50,6 +50,7 @@ public enum Attribute {
    CONNECTOR_REF(CommonAttributes.CONNECTOR_REF_STRING),
    ENABLED(CommonAttributes.ENABLED),
    FAILBACK_DELAY(HAAttributes.FAILBACK_DELAY),
+   FAILOVER_ON_SERVER_SHUTDOWN(HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN),
    GROUP_NAME(CommonAttributes.GROUP_NAME),
    HTTP_LISTENER(CommonAttributes.HTTP_LISTENER),
    KEY(CommonAttributes.KEY),
