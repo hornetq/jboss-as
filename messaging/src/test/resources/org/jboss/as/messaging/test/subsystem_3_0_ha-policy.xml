@@ -66,11 +66,11 @@
                             <connector-ref connector-name="netty"/>
                         </connectors>
                     </excludes>
-            <!--
 
                     <master cluster-name="${replication-colocated-master.cluster-name:mycluster}"
                             group-name="${replication-colocated-master.cluster-name:mygroup}"
                             check-for-live-server="${replication-colocated-master.check-for-live-server:false}" />
+
                     <slave cluster-name="${replication-colocated-slave.cluster-name:mycluster}"
                            group-name="${replication-colocated-slave.cluster-name:mygroup}"
                            allow-failback="${replication-colocated-slave.allow-failback:true}"
@@ -85,8 +85,8 @@
                             </connectors>
                         </scale-down>
                     </slave>
-             -->
                 </colocated>
             </replication>
         </ha-policy>
-    </hornetq-server></subsystem>
+    </hornetq-server>
+</subsystem>

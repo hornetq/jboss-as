@@ -24,6 +24,9 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_0;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_1;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_2;
@@ -214,8 +217,8 @@ public class MessagingExtension implements Extension {
         // only 1 ha-policy child is allowed among all of the registered models
         // @see org.jboss.as.messaging.ha.ManagementHelper.checkNoOtherSibling() usage
         serverRegistration.registerSubModel(NoneDefinition.INSTANCE);
-        serverRegistration.registerSubModel(ReplicationMasterDefinition.INSTANCE);
-        serverRegistration.registerSubModel(ReplicationSlaveDefinition.INSTANCE);
+        serverRegistration.registerSubModel(new ReplicationMasterDefinition(pathElement(HA_POLICY, REPLICATION_MASTER), false));
+        serverRegistration.registerSubModel(new ReplicationSlaveDefinition(pathElement(HA_POLICY, REPLICATION_SLAVE), false));
         serverRegistration.registerSubModel(ReplicationColocatedDefinition.INSTANCE);
 
         // Grouping Handler

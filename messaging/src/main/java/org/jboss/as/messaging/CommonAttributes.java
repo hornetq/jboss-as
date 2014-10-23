@@ -807,6 +807,7 @@ public interface CommonAttributes {
     String CLUSTER_NAME = "cluster-name";
     String CHECK_FOR_LIVE_SERVER2 = "check-for-live-server";
     String COLOCATED = "colocated";
+    String CONFIGURATION = "configuration";
     String CONNECTION_FACTORY = "connection-factory";
     String CONNECTOR = "connector";
     String CONNECTORS = "connectors";

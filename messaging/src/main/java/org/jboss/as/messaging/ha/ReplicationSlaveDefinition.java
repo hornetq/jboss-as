@@ -23,14 +23,13 @@
 package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 import static org.jboss.as.messaging.ha.HAAttributes.ALLOW_FAILBACK;
 import static org.jboss.as.messaging.ha.HAAttributes.CLUSTER_NAME;
 import static org.jboss.as.messaging.ha.HAAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.ha.HAAttributes.GROUP_NAME;
 import static org.jboss.as.messaging.ha.HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE;
 import static org.jboss.as.messaging.ha.HAAttributes.RESTART_BACKUP;
-import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperationForSingleChild;
+import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperation;
 import static org.jboss.as.messaging.ha.ScaleDownAttributes.addScaleDownConfiguration;
 
 import java.util.ArrayList;
@@ -56,8 +55,6 @@ import org.jboss.dmr.ModelNode;
  */
 public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, REPLICATION_SLAVE);
-
     public static Collection<AttributeDefinition> ATTRIBUTES;
 
     static {
@@ -74,12 +71,10 @@ public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
         ATTRIBUTES = Collections.unmodifiableCollection(attributes);
     }
 
-    public static final ReplicationSlaveDefinition INSTANCE = new ReplicationSlaveDefinition();
-
-    private ReplicationSlaveDefinition() {
-        super(PATH,
-                MessagingExtension.getResourceDescriptionResolver(HA_POLICY ),
-                createAddOperationForSingleChild(HA_POLICY, ATTRIBUTES),
+    public ReplicationSlaveDefinition(PathElement path, boolean allowSibling) {
+        super(path,
+                MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
+                createAddOperation(path.getKey(), allowSibling, ATTRIBUTES),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 

@@ -22,15 +22,18 @@
 
 package org.jboss.as.messaging.ha;
 
+import static org.jboss.as.messaging.CommonAttributes.CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
+import static org.jboss.as.messaging.CommonAttributes.MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
+import static org.jboss.as.messaging.CommonAttributes.SLAVE;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_PORT_OFFSET;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRIES;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL;
 import static org.jboss.as.messaging.ha.HAAttributes.EXCLUDED_CONNECTORS;
 import static org.jboss.as.messaging.ha.HAAttributes.MAX_BACKUPS;
 import static org.jboss.as.messaging.ha.HAAttributes.REQUEST_BACKUP;
-import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperationForSingleChild;
+import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +76,7 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
     private ReplicationColocatedDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY ),
-                createAddOperationForSingleChild(HA_POLICY, ATTRIBUTES),
+                createAddOperation(HA_POLICY, false, ATTRIBUTES),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 
@@ -90,6 +93,14 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
         return ATTRIBUTES;
     }
 
+    @Override
+    protected List<? extends PersistentResourceDefinition> getChildren() {
+        return Collections.unmodifiableList(Arrays.asList(
+                new ReplicationMasterDefinition(PathElement.pathElement(CONFIGURATION, MASTER), true),
+                new ReplicationSlaveDefinition(PathElement.pathElement(CONFIGURATION, SLAVE), true)
+        ));
+    }
+
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
         ColocatedPolicyConfiguration haPolicyConfiguration = new ColocatedPolicyConfiguration()
                 .setRequestBackup(REQUEST_BACKUP.resolveModelAttribute(context, model).asBoolean())
@@ -102,6 +113,18 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
         if (connectors.isDefined()) {
             List<String> connectorNames = new ArrayList<>(connectors.keys());
             haPolicyConfiguration.setRemoteConnectors(connectorNames);
+        }
+
+        ModelNode masterConfigurationModel = model.get(CONFIGURATION, MASTER);
+        if (masterConfigurationModel.isDefined()) {
+            HAPolicyConfiguration masterConfiguration = ReplicationMasterDefinition.buildConfiguration(context, masterConfigurationModel);
+            haPolicyConfiguration.setLiveConfig(masterConfiguration);
+        }
+
+        ModelNode slaveConfigurationModel = model.get(CONFIGURATION, SLAVE);
+        if (slaveConfigurationModel.isDefined()) {
+            HAPolicyConfiguration slaveConfiguration = ReplicationSlaveDefinition.buildConfiguration(context, slaveConfigurationModel);
+            haPolicyConfiguration.setBackupConfig(slaveConfiguration);
         }
 
         return haPolicyConfiguration;

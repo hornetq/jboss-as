@@ -23,11 +23,10 @@
 package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.ha.HAAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.jboss.as.messaging.ha.HAAttributes.CLUSTER_NAME;
 import static org.jboss.as.messaging.ha.HAAttributes.GROUP_NAME;
-import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperationForSingleChild;
+import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperation;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,20 +51,16 @@ import org.jboss.dmr.ModelNode;
  */
 public class ReplicationMasterDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, REPLICATION_MASTER);
-
     public static Collection<AttributeDefinition> ATTRIBUTES = Collections.unmodifiableList(Arrays.asList(
             (AttributeDefinition) CLUSTER_NAME,
             GROUP_NAME,
             CHECK_FOR_LIVE_SERVER
     ));
 
-    public static final ReplicationMasterDefinition INSTANCE = new ReplicationMasterDefinition();
-
-    private ReplicationMasterDefinition() {
-        super(PATH,
+    public ReplicationMasterDefinition(PathElement path, boolean allowSibling) {
+        super(path,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
-                createAddOperationForSingleChild(HA_POLICY, ATTRIBUTES),
+                createAddOperation(path.getKey(), allowSibling, ATTRIBUTES),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 

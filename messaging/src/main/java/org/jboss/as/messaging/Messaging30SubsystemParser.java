@@ -26,11 +26,14 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD
 import static org.jboss.as.controller.operations.common.Util.getEmptyOperation;
 import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
+import static org.jboss.as.messaging.CommonAttributes.CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
+import static org.jboss.as.messaging.CommonAttributes.MASTER;
 import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
+import static org.jboss.as.messaging.CommonAttributes.SLAVE;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -141,13 +144,13 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
 
             switch (element) {
                 case MASTER:
-                    procesHaPolicyReplicationMaster(reader, address, list);
+                    procesHaPolicyReplicationMaster(reader, address.clone().add(HA_POLICY, REPLICATION_MASTER), list);
                     break;
                 case SLAVE:
-                    procesHaPolicyReplicationSlave(reader, address, list);
+                    procesHaPolicyReplicationSlave(reader, address.clone().add(HA_POLICY, REPLICATION_SLAVE), list);
                     break;
                 case COLOCATED:
-                    procesHaPolicyReplicationColocation(reader, address, list);
+                    procesHaPolicyReplicationColocation(reader, address.clone().add(HA_POLICY, REPLICATION_COLOCATED), list);
                     break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);
@@ -156,7 +159,7 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
     }
 
     private void procesHaPolicyReplicationMaster(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
-        ModelNode operation = getEmptyOperation(ADD, address.clone().add(HA_POLICY, REPLICATION_MASTER));
+        ModelNode operation = getEmptyOperation(ADD, address);
 
         int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
@@ -185,7 +188,7 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
     }
 
     private void procesHaPolicyReplicationSlave(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
-        ModelNode operation = getEmptyOperation(ADD, address.clone().add(HA_POLICY, REPLICATION_SLAVE));
+        ModelNode operation = getEmptyOperation(ADD, address);
 
         int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
@@ -238,7 +241,7 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
     }
 
     private void procesHaPolicyReplicationColocation(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
-        ModelNode operation = getEmptyOperation(ADD, address.clone().add(HA_POLICY, REPLICATION_COLOCATED));
+        ModelNode operation = getEmptyOperation(ADD, address);
 
         int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
@@ -270,6 +273,8 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             }
         }
 
+        list.add(operation);
+
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String localName = reader.getLocalName();
             final Element element = Element.forName(localName);
@@ -278,12 +283,16 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case EXCLUDES:
                     processExcludedConnectors(reader, operation);
                     break;
+                case MASTER:
+                    procesHaPolicyReplicationMaster(reader, address.clone().add(CONFIGURATION, MASTER), list);
+                    break;
+                case SLAVE:
+                    procesHaPolicyReplicationSlave(reader, address.clone().add(CONFIGURATION, SLAVE), list);
+                    break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);
             }
         }
-
-        list.add(operation);
     }
 
     private void processExcludedConnectors(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {

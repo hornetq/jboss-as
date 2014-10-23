@@ -35,6 +35,7 @@ import static org.jboss.as.messaging.CommonAttributes.CALL_FAILOVER_TIMEOUT;
 import static org.jboss.as.messaging.CommonAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTERED;
 import static org.jboss.as.messaging.CommonAttributes.FAILOVER_ON_SERVER_SHUTDOWN;
+import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_LOCK_ACQUISITION_TIMEOUT;
@@ -42,6 +43,8 @@ import static org.jboss.as.messaging.CommonAttributes.OVERRIDE_IN_VM_SECURITY;
 import static org.jboss.as.messaging.CommonAttributes.REMOTING_INCOMING_INTERCEPTORS;
 import static org.jboss.as.messaging.CommonAttributes.REMOTING_OUTGOING_INTERCEPTORS;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_CLUSTERNAME;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE;
 import static org.jboss.as.messaging.MessagingExtension.VERSION_1_1_0;
 import static org.jboss.as.messaging.MessagingExtension.VERSION_1_2_0;
@@ -69,8 +72,6 @@ import org.jboss.as.controller.transform.description.ResourceTransformationDescr
 import org.jboss.as.controller.transform.description.TransformationDescriptionBuilder;
 import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
-import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
-import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -137,8 +138,8 @@ public class MessagingTransformers {
             }
         }, SHARED_STORE);
         hornetqServer.rejectChildResource(NoneDefinition.PATH);
-        hornetqServer.rejectChildResource(ReplicationMasterDefinition.PATH);
-        hornetqServer.rejectChildResource(ReplicationSlaveDefinition.PATH);
+        hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_MASTER));
+        hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_SLAVE));
         hornetqServer.rejectChildResource(ReplicationColocatedDefinition.PATH);
 
         ResourceTransformationDescriptionBuilder addressSetting = hornetqServer.addChildResource(AddressSettingDefinition.PATH);

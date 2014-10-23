@@ -45,17 +45,20 @@ import org.jboss.dmr.ModelNode;
 public class ManagementHelper {
 
     /**
-     * Create an ADD operation that will check that there is no other sibling when the resource is added.
+     * Create an ADD operation that can check that there is no other sibling when the resource is added.
      *
-     * @param attributes the attributes of the ADD operation
      * @param childType the type of children to check for the existence of siblings
+     * @param allowSibling whether it is allowed to have sibling for the resource that is added.
+     * @param attributes the attributes of the ADD operation
      */
-    static AbstractAddStepHandler createAddOperationForSingleChild(final String childType, Collection<? extends AttributeDefinition> attributes) {
+    static AbstractAddStepHandler createAddOperation(final String childType, final boolean allowSibling, Collection<? extends AttributeDefinition> attributes) {
         return new HornetQReloadRequiredHandlers.AddStepHandler(attributes) {
             @Override
             public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
                 super.execute(context, operation);
-                context.addStep(checkNoOtherSibling(childType), MODEL);
+                if (!allowSibling) {
+                    context.addStep(checkNoOtherSibling(childType), MODEL);
+                }
             }
         };
     }

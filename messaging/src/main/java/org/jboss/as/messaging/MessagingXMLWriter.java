@@ -27,6 +27,7 @@ import static org.jboss.as.messaging.ClusterConnectionDefinition.CONNECTOR_REFS;
 import static org.jboss.as.messaging.CommonAttributes.ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.ADDRESS_SETTING;
 import static org.jboss.as.messaging.CommonAttributes.BROADCAST_GROUP;
+import static org.jboss.as.messaging.CommonAttributes.CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
@@ -206,13 +207,19 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                     writeHAPolicyNone(writer, prop.getValue());
                     break;
                 case CommonAttributes.REPLICATION_MASTER:
+                    writer.writeStartElement(REPLICATION.getLocalName());
                     writeHAPolicyReplicationMaster(writer, prop.getValue());
+                    writer.writeEndElement();
                     break;
                 case CommonAttributes.REPLICATION_SLAVE:
+                    writer.writeStartElement(REPLICATION.getLocalName());
                     writeHAPolicyReplicationSlave(writer, prop.getValue());
+                    writer.writeEndElement();
                     break;
                 case CommonAttributes.REPLICATION_COLOCATED:
+                    writer.writeStartElement(REPLICATION.getLocalName());
                     writeHAPolicyReplicationColocated(writer, prop.getValue());
+                    writer.writeEndElement();
             }
 
             writer.writeEndElement();
@@ -225,11 +232,9 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         writeScaleDown(writer, node);
 
         writer.writeEndElement();
-
     }
 
     private static void writeHAPolicyReplicationMaster(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
-        writer.writeStartElement(REPLICATION.getLocalName());
         writer.writeStartElement(MASTER.getLocalName());
 
         for (AttributeDefinition attribute : ReplicationMasterDefinition.ATTRIBUTES) {
@@ -237,11 +242,9 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         }
 
         writer.writeEndElement();
-        writer.writeEndElement();
     }
 
     private static void writeHAPolicyReplicationSlave(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
-        writer.writeStartElement(REPLICATION.getLocalName());
         writer.writeStartElement(SLAVE.getLocalName());
 
         for (AttributeDefinition attribute : ReplicationSlaveDefinition.ATTRIBUTES) {
@@ -255,11 +258,9 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         writeScaleDown(writer, node);
 
         writer.writeEndElement();
-        writer.writeEndElement();
     }
 
     private static void writeHAPolicyReplicationColocated(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
-        writer.writeStartElement(REPLICATION.getLocalName());
         writer.writeStartElement(COLOCATED.getLocalName());
 
         for (AttributeDefinition attribute : ReplicationColocatedDefinition.ATTRIBUTES) {
@@ -275,7 +276,13 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
             writer.writeEndElement();
         }
 
-        writer.writeEndElement();
+        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.MASTER)) {
+            writeHAPolicyReplicationMaster(writer, node.get(CONFIGURATION, CommonAttributes.MASTER));
+        }
+        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.SLAVE)) {
+            writeHAPolicyReplicationSlave(writer, node.get(CONFIGURATION, CommonAttributes.SLAVE));
+        }
+
         writer.writeEndElement();
     }
 
