@@ -25,16 +25,24 @@ package org.jboss.as.messaging.ha;
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_SLAVE;
+import static org.jboss.as.messaging.ha.HAAttributes.ALLOW_FAILBACK;
+import static org.jboss.as.messaging.ha.HAAttributes.CLUSTER_NAME;
 import static org.jboss.as.messaging.ha.HAAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.ha.HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN;
+import static org.jboss.as.messaging.ha.HAAttributes.GROUP_NAME;
+import static org.jboss.as.messaging.ha.HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE;
+import static org.jboss.as.messaging.ha.HAAttributes.RESTART_BACKUP;
 import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.hornetq.core.config.HAPolicyConfiguration;
 import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -51,19 +59,37 @@ import org.jboss.dmr.ModelNode;
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
  */
-public class SharedStoreMasterDefinition extends PersistentResourceDefinition {
+public class SharedStoreSlaveDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, SHARED_STORE_MASTER);
-
-    public static Collection<AttributeDefinition> ATTRIBUTES = Collections.unmodifiableList(Arrays.asList(
-            (AttributeDefinition) FAILBACK_DELAY,
-            FAILOVER_ON_SERVER_SHUTDOWN
-    ));
+    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, SHARED_STORE_SLAVE);
 
 
-    public static final SharedStoreMasterDefinition INSTANCE = new SharedStoreMasterDefinition();
+    public static Collection<AttributeDefinition> ATTRIBUTES;
 
-    private SharedStoreMasterDefinition() {
+    static {
+        Collection<AttributeDefinition> attributes = new ArrayList<>();
+        attributes.add(ALLOW_FAILBACK);
+        attributes.add(FAILBACK_DELAY);
+        attributes.add(FAILOVER_ON_SERVER_SHUTDOWN);
+        attributes.add(RESTART_BACKUP);
+
+        attributes.addAll(ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES);
+
+        ATTRIBUTES = Collections.unmodifiableCollection(attributes);
+    }
+
+    private static final AbstractWriteAttributeHandler WRITE_ATTRIBUTE = new HornetQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES) {
+        @Override
+        public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+            context.addStep(new AlternativeAttributeCheckHandler(ATTRIBUTES), MODEL);
+
+            super.execute(context, operation);
+        }
+    };
+
+    public static final SharedStoreSlaveDefinition INSTANCE = new SharedStoreSlaveDefinition();
+
+    private SharedStoreSlaveDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
                 createAddOperation(PATH.getKey(), false, ATTRIBUTES),
@@ -72,9 +98,8 @@ public class SharedStoreMasterDefinition extends PersistentResourceDefinition {
 
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
-        AbstractWriteAttributeHandler writeAttribute = new HornetQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES);
         for (AttributeDefinition attribute : ATTRIBUTES) {
-            resourceRegistration.registerReadWriteAttribute(attribute, null, writeAttribute);
+            resourceRegistration.registerReadWriteAttribute(attribute, null, WRITE_ATTRIBUTE);
         }
     }
 
@@ -84,8 +109,11 @@ public class SharedStoreMasterDefinition extends PersistentResourceDefinition {
     }
 
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
-        return new SharedStoreMasterPolicyConfiguration()
+        return new SharedStoreSlavePolicyConfiguration()
+                .setAllowFailBack(ALLOW_FAILBACK.resolveModelAttribute(context, model).asBoolean())
                 .setFailbackDelay(FAILBACK_DELAY.resolveModelAttribute(context, model).asLong())
-                .setFailoverOnServerShutdown(FAILOVER_ON_SERVER_SHUTDOWN.resolveModelAttribute(context, model).asBoolean());
+                .setFailoverOnServerShutdown(FAILOVER_ON_SERVER_SHUTDOWN.resolveModelAttribute(context, model).asBoolean())
+                .setRestartBackup(RESTART_BACKUP.resolveModelAttribute(context, model).asBoolean())
+                .setScaleDownConfiguration(ScaleDownAttributes.addScaleDownConfiguration(context, model));
     }
 }

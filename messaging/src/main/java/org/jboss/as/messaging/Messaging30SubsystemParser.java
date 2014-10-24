@@ -34,6 +34,7 @@ import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.jboss.as.messaging.CommonAttributes.SLAVE;
 
 import java.util.EnumSet;
@@ -130,6 +131,9 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                 case MASTER:
                     processHAPolicySharedStoreMaster(reader, address.clone().add(HA_POLICY, SHARED_STORE_MASTER), list);
                     break;
+                case SLAVE:
+                    processHAPolicySharedStoreSlave(reader, address.clone().add(HA_POLICY, SHARED_STORE_SLAVE), list);
+                    break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);
             }
@@ -159,6 +163,52 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
         }
 
         requireNoContent(reader);
+
+        list.add(operation);
+    }
+
+    private void processHAPolicySharedStoreSlave(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case ALLOW_FAILBACK: {
+                    HAAttributes.ALLOW_FAILBACK.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILBACK_DELAY: {
+                    HAAttributes.FAILBACK_DELAY.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILOVER_ON_SERVER_SHUTDOWN: {
+                    HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case RESTART_BACKUP: {
+                    HAAttributes.RESTART_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case SCALE_DOWN:
+                    processScaleDown(reader, operation);
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
 
         list.add(operation);
     }

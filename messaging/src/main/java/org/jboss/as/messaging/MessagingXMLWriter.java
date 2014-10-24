@@ -77,6 +77,7 @@ import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
 import org.jboss.as.messaging.ha.SharedStoreMasterDefinition;
+import org.jboss.as.messaging.ha.SharedStoreSlaveDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
@@ -227,6 +228,11 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                     writer.writeStartElement(SHARED_STORE.getLocalName());
                     writeHAPolicySharedStoreMaster(writer, prop.getValue());
                     writer.writeEndElement();
+                    break;
+                case CommonAttributes.SHARED_STORE_SLAVE:
+                    writer.writeStartElement(SHARED_STORE.getLocalName());
+                    writeHAPolicySharedStoreSlave(writer, prop.getValue());
+                    writer.writeEndElement();
             }
 
             writer.writeEndElement();
@@ -239,6 +245,22 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         for (AttributeDefinition attribute : SharedStoreMasterDefinition.ATTRIBUTES) {
             attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
         }
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicySharedStoreSlave(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(SLAVE.getLocalName());
+
+        for (AttributeDefinition attribute : SharedStoreSlaveDefinition.ATTRIBUTES) {
+            // skip scale-down attributes as they are written in the scale-down element
+            if (ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES.contains(attribute)) {
+                continue;
+            }
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writeScaleDown(writer, node);
 
         writer.writeEndElement();
     }

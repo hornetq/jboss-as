@@ -4,8 +4,8 @@
         <ha-policy>
             <none>
                 <scale-down enabled="${scale-down.enabled:true}"
-                            cluster-name="{scale-down.cluster-name:mycluster}"
-                            group-name="{scale-down.group-name:mygroup}">
+                            cluster-name="${scale-down.cluster-name:mycluster}"
+                            group-name="${scale-down.group-name:mygroup}">
                     <discovery-group-ref discovery-group-name="groupC"/>
                 </scale-down>
             </none>
@@ -15,8 +15,8 @@
         <ha-policy>
             <none>
                 <scale-down enabled="${scale-down.enabled:true}"
-                            cluster-name="{scale-down.cluster-name:mycluster}"
-                            group-name="{scale-down.group-name:mygroup}">
+                            cluster-name="${scale-down.cluster-name:mycluster}"
+                            group-name="${scale-down.group-name:mygroup}">
                     <connectors>
                         <connector-ref connector-name="netty"/>
                     </connectors>
@@ -43,8 +43,8 @@
                         restart-backup="${replication-slave.restart-backup:true}"
                         max-saved-replicated-journal-size="${replication-slave.max-saved-replicated-journal-size:24}">
                     <scale-down enabled="${replication-slave-scale-down.enabled:true}"
-                                cluster-name="{replication-slave-scale-down.cluster-name:mycluster}"
-                                group-name="{replication-slave-scale-down.group-name:mygroup}">
+                                cluster-name="${replication-slave-scale-down.cluster-name:mycluster}"
+                                group-name="${replication-slave-scale-down.group-name:mygroup}">
                         <connectors>
                             <connector-ref connector-name="netty"/>
                         </connectors>
@@ -78,8 +78,8 @@
                            restart-backup="${replication-colocated-slave.restart-backup:true}"
                            max-saved-replicated-journal-size="${replication-colocated-slave.max-saved-replicated-journal-size:24}">
                         <scale-down enabled="${replication-colocated-slave-scale-down.enabled:true}"
-                                    cluster-name="{replication-colocated-slave-scale-down.cluster-name:mycluster}"
-                                    group-name="{replication-colocated-slave-scale-down.group-name:mygroup}">
+                                    cluster-name="${replication-colocated-slave-scale-down.cluster-name:mycluster}"
+                                    group-name="${replication-colocated-slave-scale-down.group-name:mygroup}">
                             <connectors>
                                 <connector-ref connector-name="netty"/>
                             </connectors>
@@ -93,7 +93,26 @@
         <ha-policy>
             <shared-store>
                 <master failback-delay="${shared-store-master.failback-delay:567}"
-                        failover-on-server-shutdown="${failover-on-server-shutdown:true}" />
+                        failover-on-server-shutdown="${shared-store-master.failover-on-server-shutdown:true}" />
             </shared-store>
         </ha-policy>
-    </hornetq-server></subsystem>
+    </hornetq-server>
+    <hornetq-server name="ha-policy-shared-store-slave">
+        <ha-policy>
+            <shared-store>
+                <slave allow-failback="${shared-store-slave.allow-failback:false}"
+                       failback-delay="${shared-store-slave.failback-delay:567}"
+                       failover-on-server-shutdown="${shared-store-slave.failover-on-server-shutdown:true}"
+                       restart-backup="${shared-store-slave.restart-backup:false}">
+                    <scale-down enabled="${shared-store-slave-scale-down.enabled:true}"
+                                cluster-name="${shared-store-slave-scale-down.cluster-name:mycluster}"
+                                group-name="${shared-store-slave-slave-scale-down.group-name:mygroup}">
+                        <connectors>
+                            <connector-ref connector-name="netty"/>
+                        </connectors>
+                    </scale-down>
+                </slave>
+            </shared-store>
+        </ha-policy>
+    </hornetq-server>
+</subsystem>

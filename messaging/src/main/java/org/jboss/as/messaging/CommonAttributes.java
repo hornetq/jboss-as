@@ -908,6 +908,7 @@ public interface CommonAttributes {
     String SECURITY_SETTINGS = "security-settings";
     String SERVLET_PATH = "servlet-path";
     String SHARED_STORE_MASTER = "shared-store-master";
+    String SHARED_STORE_SLAVE = "shared-store-slave";
     String SLAVE = "slave";
     String HORNETQ_SERVER = "hornetq-server";
     String REMOTE_CONNECTORS = "remote-connectors";
