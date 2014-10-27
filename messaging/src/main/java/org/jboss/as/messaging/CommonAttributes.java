@@ -907,6 +907,7 @@ public interface CommonAttributes {
     String SECURITY_SETTING = "security-setting";
     String SECURITY_SETTINGS = "security-settings";
     String SERVLET_PATH = "servlet-path";
+    String SHARED_STORE_COLOCATED = "shared-store-colocated";
     String SHARED_STORE_MASTER = "shared-store-master";
     String SHARED_STORE_SLAVE = "shared-store-slave";
     String SLAVE = "slave";

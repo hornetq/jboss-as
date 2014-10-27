@@ -115,4 +115,29 @@
             </shared-store>
         </ha-policy>
     </hornetq-server>
-</subsystem>
+    <hornetq-server name="ha-policy-shared-store-colocated">
+        <ha-policy>
+            <shared-store>
+                <colocated request-backup="${shared-store-colocated.request-backup:false}"
+                           backup-request-retries="${shared-store-colocated.backup-request-retries:-1}"
+                           backup-request-retry-interval="${shared-store-colocated.backup-request-retry-interval:5098}"
+                           max-backups="${shared-store-colocated.max-backups:5}"
+                           backup-port-offset="${shared-store-colocated.backup-port-offset:500}">
+                    <!--
+                    <slave allow-failback="${shared-store-colocated-slave.allow-failback:false}"
+                           failback-delay="${shared-store-colocated-slave.failback-delay:567}"
+                           failover-on-server-shutdown="${shared-store-colocated-slave.failover-on-server-shutdown:true}"
+                           restart-backup="${shared-store-colocated-slave.restart-backup:false}">
+                        <scale-down enabled="${shared-store-colocated-slave-scale-down.enabled:true}"
+                                    cluster-name="${shared-store-colocated-slave-scale-down.cluster-name:mycluster}"
+                                    group-name="${shared-store-colocated-slave-slave-scale-down.group-name:mygroup}">
+                            <connectors>
+                                <connector-ref connector-name="netty"/>
+                            </connectors>
+                        </scale-down>
+                    </slave>
+                -->
+                </colocated>
+            </shared-store>
+        </ha-policy>
+    </hornetq-server></subsystem>

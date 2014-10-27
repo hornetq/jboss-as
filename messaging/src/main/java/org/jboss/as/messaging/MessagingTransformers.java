@@ -72,6 +72,7 @@ import org.jboss.as.controller.transform.description.ResourceTransformationDescr
 import org.jboss.as.controller.transform.description.TransformationDescriptionBuilder;
 import org.jboss.as.messaging.ha.NoneDefinition;
 import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
+import org.jboss.as.messaging.ha.SharedStoreColocatedDefinition;
 import org.jboss.as.messaging.ha.SharedStoreMasterDefinition;
 import org.jboss.as.messaging.ha.SharedStoreSlaveDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
@@ -146,6 +147,7 @@ public class MessagingTransformers {
         hornetqServer.rejectChildResource(ReplicationColocatedDefinition.PATH);
         hornetqServer.rejectChildResource(SharedStoreMasterDefinition.PATH);
         hornetqServer.rejectChildResource(SharedStoreSlaveDefinition.PATH);
+        hornetqServer.rejectChildResource(SharedStoreColocatedDefinition.PATH);
 
         ResourceTransformationDescriptionBuilder addressSetting = hornetqServer.addChildResource(AddressSettingDefinition.PATH);
         rejectDefinedAttributeWithDefaultValue(addressSetting, MAX_REDELIVERY_DELAY, REDELIVERY_MULTIPLIER);
