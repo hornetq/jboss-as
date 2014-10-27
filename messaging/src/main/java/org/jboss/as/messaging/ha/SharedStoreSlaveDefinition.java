@@ -61,9 +61,6 @@ import org.jboss.dmr.ModelNode;
  */
 public class SharedStoreSlaveDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, SHARED_STORE_SLAVE);
-
-
     public static Collection<AttributeDefinition> ATTRIBUTES;
 
     static {
@@ -87,12 +84,10 @@ public class SharedStoreSlaveDefinition extends PersistentResourceDefinition {
         }
     };
 
-    public static final SharedStoreSlaveDefinition INSTANCE = new SharedStoreSlaveDefinition();
-
-    private SharedStoreSlaveDefinition() {
-        super(PATH,
+    public SharedStoreSlaveDefinition(PathElement path, boolean allowSibling) {
+        super(path,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
-                createAddOperation(PATH.getKey(), false, ATTRIBUTES),
+                createAddOperation(path.getKey(), allowSibling, ATTRIBUTES),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 

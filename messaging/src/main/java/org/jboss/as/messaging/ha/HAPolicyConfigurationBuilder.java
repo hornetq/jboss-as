@@ -27,6 +27,7 @@ import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_SLAVE;
 
@@ -75,6 +76,10 @@ public class HAPolicyConfigurationBuilder {
             }
             case SHARED_STORE_SLAVE: {
                 haPolicyConfiguration = SharedStoreSlaveDefinition.buildConfiguration(context, haPolicy);
+                break;
+            }
+            case SHARED_STORE_COLOCATED: {
+                haPolicyConfiguration = SharedStoreColocatedDefinition.buildConfiguration(context, haPolicy);
                 break;
             }
             default: {

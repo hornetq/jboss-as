@@ -22,8 +22,11 @@
 
 package org.jboss.as.messaging.ha;
 
+import static org.jboss.as.messaging.CommonAttributes.HA_CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
+import static org.jboss.as.messaging.CommonAttributes.MASTER;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_COLOCATED;
+import static org.jboss.as.messaging.CommonAttributes.SLAVE;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_PORT_OFFSET;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRIES;
 import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL;
@@ -89,13 +92,10 @@ public class SharedStoreColocatedDefinition extends PersistentResourceDefinition
 
     @Override
     protected List<? extends PersistentResourceDefinition> getChildren() {
-        return Collections.emptyList();
-        /*
         return Collections.unmodifiableList(Arrays.asList(
-                //new ReplicationMasterDefinition(PathElement.pathElement(HA_CONFIGURATION, MASTER), true),
-                //new ReplicationSlaveDefinition(PathElement.pathElement(HA_CONFIGURATION, SLAVE), true)
+                new SharedStoreMasterDefinition(PathElement.pathElement(HA_CONFIGURATION, MASTER), true),
+                new SharedStoreSlaveDefinition(PathElement.pathElement(HA_CONFIGURATION, SLAVE), true)
         ));
-        */
     }
 
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
@@ -106,7 +106,6 @@ public class SharedStoreColocatedDefinition extends PersistentResourceDefinition
                 .setMaxBackups(MAX_BACKUPS.resolveModelAttribute(context, model).asInt())
                 .setBackupPortOffset(BACKUP_PORT_OFFSET.resolveModelAttribute(context, model).asInt());
 
-        /*
         ModelNode masterConfigurationModel = model.get(HA_CONFIGURATION, MASTER);
         if (masterConfigurationModel.isDefined()) {
             HAPolicyConfiguration masterConfiguration = ReplicationMasterDefinition.buildConfiguration(context, masterConfigurationModel);
@@ -118,7 +117,6 @@ public class SharedStoreColocatedDefinition extends PersistentResourceDefinition
             HAPolicyConfiguration slaveConfiguration = ReplicationSlaveDefinition.buildConfiguration(context, slaveConfigurationModel);
             haPolicyConfiguration.setBackupConfig(slaveConfiguration);
         }
-        */
 
         return haPolicyConfiguration;
     }

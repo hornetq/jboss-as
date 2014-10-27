@@ -33,9 +33,15 @@ import static org.jboss.as.messaging.CommonAttributes.NONE;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.jboss.as.messaging.CommonAttributes.SLAVE;
+import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_PORT_OFFSET;
+import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRIES;
+import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL;
+import static org.jboss.as.messaging.ha.HAAttributes.MAX_BACKUPS;
+import static org.jboss.as.messaging.ha.HAAttributes.REQUEST_BACKUP;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -133,6 +139,9 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                     break;
                 case SLAVE:
                     processHAPolicySharedStoreSlave(reader, address.clone().add(HA_POLICY, SHARED_STORE_SLAVE), list);
+                    break;
+                case COLOCATED:
+                    processHAPolicySharedStoreColocated(reader, address.clone().add(HA_POLICY, SHARED_STORE_COLOCATED), list);
                     break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);
@@ -384,6 +393,59 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
                     break;
                 case SLAVE:
                     procesHaPolicyReplicationSlave(reader, address.clone().add(HA_CONFIGURATION, SLAVE), list);
+                    break;
+                default:
+                    throw ParseUtils.unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void processHAPolicySharedStoreColocated(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+
+                case REQUEST_BACKUP: {
+                    HAAttributes.REQUEST_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_PORT_OFFSET: {
+                    HAAttributes.BACKUP_PORT_OFFSET.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRIES: {
+                    HAAttributes.BACKUP_REQUEST_RETRIES.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRY_INTERVAL: {
+                    HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case MAX_BACKUPS: {
+                    HAAttributes.MAX_BACKUPS.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        list.add(operation);
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case MASTER:
+                    processHAPolicySharedStoreMaster(reader, address.clone().add(HA_CONFIGURATION, MASTER), list);
+                    break;
+                case SLAVE:
+                    processHAPolicySharedStoreSlave(reader, address.clone().add(HA_CONFIGURATION, SLAVE), list);
                     break;
                 default:
                     throw ParseUtils.unexpectedElement(reader);

@@ -123,7 +123,10 @@
                            backup-request-retry-interval="${shared-store-colocated.backup-request-retry-interval:5098}"
                            max-backups="${shared-store-colocated.max-backups:5}"
                            backup-port-offset="${shared-store-colocated.backup-port-offset:500}">
-                    <!--
+
+                    <master failback-delay="${shared-store-colocated-master.failback-delay:567}"
+                            failover-on-server-shutdown="${shared-store-colocated-master.failover-on-server-shutdown:true}" />
+
                     <slave allow-failback="${shared-store-colocated-slave.allow-failback:false}"
                            failback-delay="${shared-store-colocated-slave.failback-delay:567}"
                            failover-on-server-shutdown="${shared-store-colocated-slave.failover-on-server-shutdown:true}"
@@ -136,7 +139,6 @@
                             </connectors>
                         </scale-down>
                     </slave>
-                -->
                 </colocated>
             </shared-store>
         </ha-policy>

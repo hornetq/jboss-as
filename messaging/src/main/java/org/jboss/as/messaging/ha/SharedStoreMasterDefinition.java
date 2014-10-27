@@ -53,20 +53,15 @@ import org.jboss.dmr.ModelNode;
  */
 public class SharedStoreMasterDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, SHARED_STORE_MASTER);
-
     public static Collection<AttributeDefinition> ATTRIBUTES = Collections.unmodifiableList(Arrays.asList(
             (AttributeDefinition) FAILBACK_DELAY,
             FAILOVER_ON_SERVER_SHUTDOWN
     ));
 
-
-    public static final SharedStoreMasterDefinition INSTANCE = new SharedStoreMasterDefinition();
-
-    private SharedStoreMasterDefinition() {
-        super(PATH,
+    public SharedStoreMasterDefinition(PathElement path, boolean allowSibling) {
+        super(path,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
-                createAddOperation(PATH.getKey(), false, ATTRIBUTES),
+                createAddOperation(path.getKey(), allowSibling, ATTRIBUTES),
                 ReloadRequiredRemoveStepHandler.INSTANCE);
     }
 

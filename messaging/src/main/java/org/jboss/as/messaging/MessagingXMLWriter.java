@@ -76,6 +76,7 @@ import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
 import org.jboss.as.messaging.ha.ReplicationMasterDefinition;
 import org.jboss.as.messaging.ha.ReplicationSlaveDefinition;
 import org.jboss.as.messaging.ha.ScaleDownAttributes;
+import org.jboss.as.messaging.ha.SharedStoreColocatedDefinition;
 import org.jboss.as.messaging.ha.SharedStoreMasterDefinition;
 import org.jboss.as.messaging.ha.SharedStoreSlaveDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
@@ -233,6 +234,11 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                     writer.writeStartElement(SHARED_STORE.getLocalName());
                     writeHAPolicySharedStoreSlave(writer, prop.getValue());
                     writer.writeEndElement();
+                    break;
+                case CommonAttributes.SHARED_STORE_COLOCATED:
+                    writer.writeStartElement(SHARED_STORE.getLocalName());
+                    writeHAPolicySharedStoreColocated(writer, prop.getValue());
+                    writer.writeEndElement();
             }
 
             writer.writeEndElement();
@@ -325,6 +331,22 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         writer.writeEndElement();
     }
 
+    private static void writeHAPolicySharedStoreColocated(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(COLOCATED.getLocalName());
+
+        for (AttributeDefinition attribute : SharedStoreColocatedDefinition.ATTRIBUTES) {
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        if (node.get(HA_CONFIGURATION).hasDefined(CommonAttributes.MASTER)) {
+            writeHAPolicySharedStoreMaster(writer, node.get(HA_CONFIGURATION, CommonAttributes.MASTER));
+        }
+        if (node.get(HA_CONFIGURATION).hasDefined(CommonAttributes.SLAVE)) {
+            writeHAPolicySharedStoreSlave(writer, node.get(HA_CONFIGURATION, CommonAttributes.SLAVE));
+        }
+
+        writer.writeEndElement();
+    }
     private static void writeScaleDown(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
         writer.writeStartElement(CommonAttributes.SCALE_DOWN);
         ScaleDownAttributes.SCALE_DOWN.marshallAsAttribute(node, false, writer);

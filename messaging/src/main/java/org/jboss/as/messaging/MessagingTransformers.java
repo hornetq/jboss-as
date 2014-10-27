@@ -46,6 +46,8 @@ import static org.jboss.as.messaging.CommonAttributes.REPLICATION_CLUSTERNAME;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
+import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.jboss.as.messaging.MessagingExtension.VERSION_1_1_0;
 import static org.jboss.as.messaging.MessagingExtension.VERSION_1_2_0;
 import static org.jboss.as.messaging.MessagingExtension.VERSION_1_2_1;
@@ -145,8 +147,8 @@ public class MessagingTransformers {
         hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_MASTER));
         hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_SLAVE));
         hornetqServer.rejectChildResource(ReplicationColocatedDefinition.PATH);
-        hornetqServer.rejectChildResource(SharedStoreMasterDefinition.PATH);
-        hornetqServer.rejectChildResource(SharedStoreSlaveDefinition.PATH);
+        hornetqServer.rejectChildResource(pathElement(HA_POLICY, SHARED_STORE_MASTER));
+        hornetqServer.rejectChildResource(pathElement(HA_POLICY, SHARED_STORE_SLAVE));
         hornetqServer.rejectChildResource(SharedStoreColocatedDefinition.PATH);
 
         ResourceTransformationDescriptionBuilder addressSetting = hornetqServer.addChildResource(AddressSettingDefinition.PATH);
