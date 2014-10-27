@@ -141,7 +141,7 @@ public enum Element {
    NAME(CommonAttributes.NAME),
    NETTY_ACCEPTOR(CommonAttributes.NETTY_ACCEPTOR),
    NETTY_CONNECTOR(CommonAttributes.NETTY_CONNECTOR),
-   NONE(CommonAttributes.NONE),
+   LIVE_ONLY(CommonAttributes.LIVE_ONLY),
    BACKUP_GROUP_NAME(CommonAttributes.BACKUP_GROUP_NAME),
    OVERRIDE_IN_VM_SECURITY(CommonAttributes.OVERRIDE_IN_VM_SECURITY),
    PAGE_MAX_CONCURRENT_IO(CommonAttributes.PAGE_MAX_CONCURRENT_IO),

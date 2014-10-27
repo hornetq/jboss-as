@@ -53,7 +53,7 @@ import static org.jboss.as.messaging.CommonAttributes.ROLE;
 import static org.jboss.as.messaging.Element.COLOCATED;
 import static org.jboss.as.messaging.Element.EXCLUDES;
 import static org.jboss.as.messaging.Element.MASTER;
-import static org.jboss.as.messaging.Element.NONE;
+import static org.jboss.as.messaging.Element.LIVE_ONLY;
 import static org.jboss.as.messaging.Element.REPLICATION;
 import static org.jboss.as.messaging.Element.SHARED_STORE;
 import static org.jboss.as.messaging.Element.SLAVE;
@@ -207,8 +207,8 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
             String type = prop.getName();
 
             switch (type) {
-                case CommonAttributes.NONE:
-                    writeHAPolicyNone(writer, prop.getValue());
+                case CommonAttributes.LIVE_ONLY:
+                    writeHAPolicyLiveOnly(writer, prop.getValue());
                     break;
                 case CommonAttributes.REPLICATION_MASTER:
                     writer.writeStartElement(REPLICATION.getLocalName());
@@ -271,8 +271,8 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         writer.writeEndElement();
     }
 
-    private static void writeHAPolicyNone(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
-        writer.writeStartElement(NONE.getLocalName());
+    private static void writeHAPolicyLiveOnly(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(LIVE_ONLY.getLocalName());
 
         writeScaleDown(writer, node);
 
@@ -397,9 +397,12 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                 for(final Property property : node.get(CONNECTOR).asPropertyList()) {
                     writer.writeStartElement(Element.CONNECTOR.getLocalName());
                     writer.writeAttribute(Attribute.NAME.getLocalName(), property.getName());
+
+                    writeTransportParam(writer, property.getValue().get(PARAM));
+
                     GenericTransportDefinition.SOCKET_BINDING.marshallAsElement(property.getValue(), writer);
                     CommonAttributes.FACTORY_CLASS.marshallAsElement(property.getValue(), writer);
-                    writeTransportParam(writer, property.getValue().get(PARAM));
+
                     writer.writeEndElement();
                 }
             }
@@ -451,9 +454,10 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
 
         RemoteTransportDefinition.SOCKET_BINDING.marshallAsAttribute(value, writer);
         InVMTransportDefinition.SERVER_ID.marshallAsAttribute(value, writer);
-        CommonAttributes.FACTORY_CLASS.marshallAsElement(value, writer);
 
         writeTransportParam(writer, value.get(PARAM));
+
+        CommonAttributes.FACTORY_CLASS.marshallAsElement(value, writer);
     }
 
     private static void writeTransportParam(final XMLExtendedStreamWriter writer, final ModelNode param) throws XMLStreamException {

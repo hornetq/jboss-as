@@ -1,19 +1,19 @@
 
 <subsystem xmlns="urn:jboss:domain:messaging:3.0">
-    <hornetq-server name="ha-policy-none-scale-down-discovery-group">
+    <hornetq-server name="ha-policy-live-only-scale-down-discovery-group">
         <ha-policy>
-            <none>
+            <live-only>
                 <scale-down enabled="${scale-down.enabled:true}"
                             cluster-name="${scale-down.cluster-name:mycluster}"
                             group-name="${scale-down.group-name:mygroup}">
                     <discovery-group-ref discovery-group-name="groupC"/>
                 </scale-down>
-            </none>
+            </live-only>
         </ha-policy>
     </hornetq-server>
-    <hornetq-server name="ha-policy-none-scale-down-connectors">
+    <hornetq-server name="ha-policy-live-only-scale-down-connectors">
         <ha-policy>
-            <none>
+            <live-only>
                 <scale-down enabled="${scale-down.enabled:true}"
                             cluster-name="${scale-down.cluster-name:mycluster}"
                             group-name="${scale-down.group-name:mygroup}">
@@ -21,7 +21,7 @@
                         <connector-ref connector-name="netty"/>
                     </connectors>
                 </scale-down>
-            </none>
+            </live-only>
         </ha-policy>
     </hornetq-server>
     <hornetq-server name="ha-policy-replication-master">
@@ -142,4 +142,5 @@
                 </colocated>
             </shared-store>
         </ha-policy>
-    </hornetq-server></subsystem>
+    </hornetq-server>
+</subsystem>

@@ -858,6 +858,7 @@ public interface CommonAttributes {
     String INBOUND_CONFIG = "inbound-config";
     String LARGE_MESSAGES_DIRECTORY = "large-messages-directory";
     String LAST_VALUE_QUEUE = "last-value=queue";
+    String LIVE_ONLY = "live-only";
     String LOCAL = "local";
     String LOCAL_TX = "LocalTransaction";
     String MANAGE_XML_NAME = "manage";
@@ -870,7 +871,6 @@ public interface CommonAttributes {
     String NAME = "name";
     String NETTY_ACCEPTOR = "netty-acceptor";
     String NETTY_CONNECTOR = "netty-connector";
-    String NONE = "none";
     String NON_DURABLE_MESSAGE_COUNT = "non-durable-message-count";
     String NON_DURABLE_SUBSCRIPTION_COUNT = "non-durable-subscription-count";
     String NO_TX = "NoTransaction";

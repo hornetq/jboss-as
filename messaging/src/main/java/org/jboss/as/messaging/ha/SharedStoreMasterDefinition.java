@@ -22,9 +22,7 @@
 
 package org.jboss.as.messaging.ha;
 
-import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
 import static org.jboss.as.messaging.ha.HAAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.ha.HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN;
 import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperation;
@@ -43,7 +41,6 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.jboss.as.messaging.AlternativeAttributeCheckHandler;
 import org.jboss.as.messaging.HornetQReloadRequiredHandlers;
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.dmr.ModelNode;

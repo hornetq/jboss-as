@@ -29,7 +29,7 @@ import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
 import static org.jboss.as.messaging.CommonAttributes.HA_CONFIGURATION;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.MASTER;
-import static org.jboss.as.messaging.CommonAttributes.NONE;
+import static org.jboss.as.messaging.CommonAttributes.LIVE_ONLY;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
@@ -37,11 +37,6 @@ import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.jboss.as.messaging.CommonAttributes.SLAVE;
-import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_PORT_OFFSET;
-import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRIES;
-import static org.jboss.as.messaging.ha.HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL;
-import static org.jboss.as.messaging.ha.HAAttributes.MAX_BACKUPS;
-import static org.jboss.as.messaging.ha.HAAttributes.REQUEST_BACKUP;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -113,8 +108,8 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             final Element element = Element.forName(localName);
 
             switch (element) {
-                case NONE:
-                    procesHaPolicyNone(reader, address, list);
+                case LIVE_ONLY:
+                    procesHaPolicyLiveOnly(reader, address, list);
                     break;
                 case REPLICATION:
                     procesHaPolicyReplication(reader, address, list);
@@ -222,8 +217,8 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
         list.add(operation);
     }
 
-    private void procesHaPolicyNone(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
-        ModelNode haPolicyAdd = getEmptyOperation(ADD, address.clone().add(HA_POLICY, NONE));
+    private void procesHaPolicyLiveOnly(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode haPolicyAdd = getEmptyOperation(ADD, address.clone().add(HA_POLICY, LIVE_ONLY));
 
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String localName = reader.getLocalName();

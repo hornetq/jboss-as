@@ -25,7 +25,7 @@ package org.jboss.as.messaging.ha;
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 import static org.jboss.as.messaging.AlternativeAttributeCheckHandler.checkAlternatives;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.NONE;
+import static org.jboss.as.messaging.CommonAttributes.LIVE_ONLY;
 import static org.jboss.as.messaging.ha.ScaleDownAttributes.SCALE_DOWN_CONNECTORS;
 import static org.jboss.as.messaging.ha.ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME;
 
@@ -51,9 +51,9 @@ import org.jboss.dmr.ModelNode;
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
  */
-public class NoneDefinition extends PersistentResourceDefinition {
+public class LiveOnlyDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, NONE);
+    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, LIVE_ONLY);
 
     private static Collection<AttributeDefinition> ATTRIBUTES = ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES;
 
@@ -81,9 +81,9 @@ public class NoneDefinition extends PersistentResourceDefinition {
         }
     };
 
-    public static final NoneDefinition INSTANCE = new NoneDefinition();
+    public static final LiveOnlyDefinition INSTANCE = new LiveOnlyDefinition();
 
-    private NoneDefinition() {
+    private LiveOnlyDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
                 ADD,

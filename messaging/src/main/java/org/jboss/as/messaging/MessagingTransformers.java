@@ -72,11 +72,9 @@ import org.jboss.as.controller.transform.description.DiscardAttributeChecker.Dis
 import org.jboss.as.controller.transform.description.OperationTransformationOverrideBuilder;
 import org.jboss.as.controller.transform.description.ResourceTransformationDescriptionBuilder;
 import org.jboss.as.controller.transform.description.TransformationDescriptionBuilder;
-import org.jboss.as.messaging.ha.NoneDefinition;
+import org.jboss.as.messaging.ha.LiveOnlyDefinition;
 import org.jboss.as.messaging.ha.ReplicationColocatedDefinition;
 import org.jboss.as.messaging.ha.SharedStoreColocatedDefinition;
-import org.jboss.as.messaging.ha.SharedStoreMasterDefinition;
-import org.jboss.as.messaging.ha.SharedStoreSlaveDefinition;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -143,7 +141,7 @@ public class MessagingTransformers {
                 }
             }
         }, SHARED_STORE);
-        hornetqServer.rejectChildResource(NoneDefinition.PATH);
+        hornetqServer.rejectChildResource(LiveOnlyDefinition.PATH);
         hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_MASTER));
         hornetqServer.rejectChildResource(pathElement(HA_POLICY, REPLICATION_SLAVE));
         hornetqServer.rejectChildResource(ReplicationColocatedDefinition.PATH);

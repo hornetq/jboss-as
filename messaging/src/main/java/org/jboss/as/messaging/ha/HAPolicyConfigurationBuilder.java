@@ -23,7 +23,7 @@
 package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.NONE;
+import static org.jboss.as.messaging.CommonAttributes.LIVE_ONLY;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_COLOCATED;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_MASTER;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_SLAVE;
@@ -54,8 +54,8 @@ public class HAPolicyConfigurationBuilder {
         final HAPolicyConfiguration haPolicyConfiguration;
         String type = prop.getName();
         switch (type) {
-            case NONE: {
-                haPolicyConfiguration = NoneDefinition.buildConfiguration(context, haPolicy);
+            case LIVE_ONLY: {
+                haPolicyConfiguration = LiveOnlyDefinition.buildConfiguration(context, haPolicy);
                 break;
             }
             case REPLICATION_MASTER: {

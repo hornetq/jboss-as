@@ -27,7 +27,7 @@ import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
 import static org.jboss.as.messaging.CommonAttributes.LOCAL;
 import static org.jboss.as.messaging.CommonAttributes.LOCAL_TX;
-import static org.jboss.as.messaging.CommonAttributes.NONE;
+import static org.jboss.as.messaging.CommonAttributes.LIVE_ONLY;
 import static org.jboss.as.messaging.CommonAttributes.NO_TX;
 import static org.jboss.as.messaging.CommonAttributes.XA_TX;
 import static org.jboss.as.messaging.jms.ConnectionFactoryAttribute.getDefinitions;
@@ -94,7 +94,7 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
             String txType = resolvedModel.get(ConnectionFactoryAttributes.Pooled.TRANSACTION.getName()).asString();
             if(LOCAL.equals(txType)) {
                 txSupport = LOCAL_TX;
-            } else if (NONE.equals(txType)) {
+            } else if (LIVE_ONLY.equals(txType)) {
                  txSupport = NO_TX;
             } else {
                 txSupport = XA_TX;

@@ -24,24 +24,17 @@ package org.jboss.as.messaging.ha;
 
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
-import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_MASTER;
-import static org.jboss.as.messaging.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.jboss.as.messaging.ha.HAAttributes.ALLOW_FAILBACK;
-import static org.jboss.as.messaging.ha.HAAttributes.CLUSTER_NAME;
 import static org.jboss.as.messaging.ha.HAAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.ha.HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN;
-import static org.jboss.as.messaging.ha.HAAttributes.GROUP_NAME;
-import static org.jboss.as.messaging.ha.HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE;
 import static org.jboss.as.messaging.ha.HAAttributes.RESTART_BACKUP;
 import static org.jboss.as.messaging.ha.ManagementHelper.createAddOperation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.hornetq.core.config.HAPolicyConfiguration;
-import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;

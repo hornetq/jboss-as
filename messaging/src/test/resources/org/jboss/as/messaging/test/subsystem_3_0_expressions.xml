@@ -13,8 +13,8 @@
         <wild-card-routing-enabled>${wild.card.routing.enabled:false}</wild-card-routing-enabled>
         <management-address>${management.address:my.management.address}</management-address>
         <management-notification-address>${management.notification.address:my.management.notif.address}</management-notification-address>
-        <cluster-user>${messaging.cluster.user.name}</cluster-user>
-        <cluster-password>${messaging.cluster.user.password}</cluster-password>
+        <cluster-user>${messaging.cluster.user.name:cluster-user}</cluster-user>
+        <cluster-password>${messaging.cluster.user.password:cluster-password}</cluster-password>
         <jmx-management-enabled>${jmx.management.enabled:false}</jmx-management-enabled>
         <jmx-domain>${jmx.domain:my.jmx.domain}</jmx-domain>
         <statistics-enabled>${statistics.enabled:true}</statistics-enabled>
@@ -74,32 +74,14 @@
         <journal-directory path="${my.journal.dir:test}" relative-to="test" />
         <large-messages-directory path="${my.largemessages.dir:test}" relative-to="test" />
         <ha-policy>
-            <none>
+            <live-only>
                 <scale-down enabled="${scale-down.enabled:true}"
                             cluster-name="{scale-down.cluster-name:mycluster}"
                             group-name="{scale-down.group-name:mygroup}">
                     <discovery-group-ref discovery-group-name="groupC"/>
                 </scale-down>
-            </none>
+            </live-only>
         </ha-policy>
-        <!--
-        <ha-policy type="NONE">
-            <request-backup>false</request-backup>
-            <backup-request-retries>3</backup-request-retries>
-            <backup-request-retry-interval>500</backup-request-retry-interval>
-            <max-backups>10</max-backups>
-            <backup-port-offset>10</backup-port-offset>
-            <check-for-live-server>true</check-for-live-server>
-            <allow-failback>true</allow-failback>
-            <failback-delay>10</failback-delay>
-            <failover-on-shutdown>true</failover-on-shutdown>
-            <replication-clustername>cluster2</replication-clustername>
-            <scale-down-clustername>cluster1</scale-down-clustername>
-            <max-saved-replicated-journal-size>2</max-saved-replicated-journal-size>
-            <scale-down>false</scale-down>
-            <restart-backup>true</restart-backup>
-        </ha-policy>
-        -->
         <connectors>
             <http-connector name="http" socket-binding="http">
                 <param key="batch-delay" value="${batch.delay:50}"/>
@@ -110,11 +92,11 @@
             </netty-connector>
             <in-vm-connector name="in-vm" server-id="${my.server-id:0}" />
             <connector name="myconnector">
-                <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
                 <param key="host" value="192.168.1.2"/>
                 <param key="port" value="5445"/>
                 <param key="key-store-path" value="path/to/server.jks"/>
                 <param key="key-store-password" value="${VAULT::server-key::key-store-password::sharedKey}"/>
+                <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
             </connector>
         </connectors>
         <acceptors>
@@ -128,8 +110,8 @@
             </netty-acceptor>
             <in-vm-acceptor name="in-vm" server-id="${my.server-id:0}" />
             <acceptor name="myacceptor">
-                <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
                 <param key="batch-delay" value="${batch.delay:50}"/>
+                <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
             </acceptor>
         </acceptors>
         <broadcast-groups>
@@ -323,8 +305,10 @@
             </connector-service>
             <connector-service name="b">
                 <factory-class>bar.foo</factory-class>
+                <!--
                 <param key="foo" value="${connector.value:bar}"/>
                 <param key="bar" value="2"/>
+                -->
             </connector-service>
         </connector-services>
 
